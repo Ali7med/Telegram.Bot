@@ -12,7 +12,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should serialize request")]
         public void Should_Serialize_Request()
         {
-            GetUpdatesRequest request = new GetUpdatesRequest
+            GetUpdatesRequest request = new()
             {
                 Offset = 12345
             };
@@ -26,12 +26,12 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should properly serialize request with custom json settings")]
         public void Should_Properly_Serialize_Request_With_Custom_Json_Settings()
         {
-            GetUpdatesRequest request = new GetUpdatesRequest
+            GetUpdatesRequest request = new()
             {
                 Offset = 12345
             };
 
-            var settings = new JsonSerializerSettings
+            JsonSerializerSettings settings = new()
             {
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = new CamelCasePropertyNamesContractResolver
@@ -56,11 +56,13 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact]
         public void Should_Properly_Serialize_RestrictChatMemberRequest()
         {
-            var request = new RestrictChatMemberRequest(
-                -100123456789, 123456789, new ChatPermissions())
-            {
-                UntilDate = new DateTime(2020, 1, 1, 1, 1, 1, DateTimeKind.Utc)
-            };
+            RestrictChatMemberRequest request =
+                new(chatId: -100123456789,
+                    userId: 123456789,
+                    permissions: new ChatPermissions())
+                {
+                    UntilDate = new DateTime(2020, 1, 1, 1, 1, 1, DateTimeKind.Utc)
+                };
 
             string serializeRequest = JsonConvert.SerializeObject(request);
 

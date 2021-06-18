@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Xunit;
@@ -16,7 +16,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 ""type"": ""phone_number""
             }";
 
-            var message = JsonConvert.DeserializeObject<MessageEntity>(json);
+            MessageEntity message = JsonConvert.DeserializeObject<MessageEntity>(json);
 
             Assert.Equal(MessageEntityType.PhoneNumber, message.Type);
         }
@@ -24,14 +24,14 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should serialize message entity with phone number type")]
         public void Should_Serialize_Message_Entity_With_Phone_Number_Type()
         {
-            var messageEntity = new MessageEntity
+            MessageEntity messageEntity = new()
             {
                 Length = 10,
                 Offset = 10,
                 Type = MessageEntityType.PhoneNumber
             };
 
-            var json = JsonConvert.SerializeObject(messageEntity);
+            string json = JsonConvert.SerializeObject(messageEntity);
 
             Assert.NotNull(json);
             Assert.True(json.Length > 10);
@@ -47,7 +47,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 ""type"": ""totally_unknown_type""
             }";
 
-            var message = JsonConvert.DeserializeObject<MessageEntity>(json);
+            MessageEntity message = JsonConvert.DeserializeObject<MessageEntity>(json);
 
             Assert.Equal(MessageEntityType.Unknown, message.Type);
         }
@@ -55,14 +55,14 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should serialize message entity with unknown type")]
         public void Should_Serialize_Message_Entity_With_Unknown_Type()
         {
-            var messageEntity = new MessageEntity
+            MessageEntity messageEntity = new()
             {
                 Length = 10,
                 Offset = 10,
                 Type = MessageEntityType.Unknown
             };
 
-            var json = JsonConvert.SerializeObject(messageEntity);
+            string json = JsonConvert.SerializeObject(messageEntity);
 
             Assert.NotNull(json);
             Assert.True(json.Length > 10);

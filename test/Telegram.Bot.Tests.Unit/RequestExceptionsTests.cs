@@ -202,8 +202,8 @@ namespace Telegram.Bot.Tests.Unit
                 httpClient
             );
 
-            ApiRequestEventArgs requestEventArgs1 = default;
-            ApiRequestEventArgs requestEventArgs2 = default;
+            ApiRequestEventArgs requestEventArgs1 = default!;
+            ApiRequestEventArgs requestEventArgs2 = default!;
 
             botClient.OnMakingApiRequest += async (sender, args, ct) => requestEventArgs1 = args;
             botClient.OnApiResponseReceived += async (sender, args, ct) => requestEventArgs2 = args.ApiRequestEventArgs;

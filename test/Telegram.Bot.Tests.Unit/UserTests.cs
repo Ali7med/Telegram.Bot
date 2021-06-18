@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
@@ -12,6 +12,7 @@ namespace Telegram.Bot.Tests.Unit
         public void Should_ToString()
         {
             Assert.Equal("111", new ChatId(111));
+
             Assert.Equal("@alicebot (12345)", new User
             {
                 Id = 12345,
@@ -59,7 +60,7 @@ namespace Telegram.Bot.Tests.Unit
             User user1Copy = JsonConvert.DeserializeObject<User>(json1);
             User user2 = JsonConvert.DeserializeObject<User>(json2);
 
-            Dictionary<User, string> dict = new Dictionary<User, string>
+            Dictionary<User, string> dict = new()
             {
                 {user1, nameof(user1)},
                 {user2, nameof(user2)}

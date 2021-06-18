@@ -12,7 +12,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         public void Should_Serialize_Input_Media_Stream()
         {
             const string fileName = "myFile";
-            InputMedia inputMedia = new InputMedia(new MemoryStream(), fileName);
+            InputMedia inputMedia = new(new MemoryStream(), fileName);
 
             string json = JsonConvert.SerializeObject(inputMedia);
             InputMedia obj = JsonConvert.DeserializeObject<InputMedia>(json);

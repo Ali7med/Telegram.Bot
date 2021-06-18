@@ -8,13 +8,13 @@ namespace Telegram.Bot.Tests.Unit
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        private readonly HttpStatusCode _httpStatusCode;
-        private readonly HttpContent _responseContent;
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _action;
+        private readonly HttpStatusCode? _httpStatusCode;
+        private readonly HttpContent? _responseContent;
+        private readonly Func<HttpRequestMessage, HttpResponseMessage>? _action;
 
         public MockHttpMessageHandler(
             HttpStatusCode httpStatusCode,
-            HttpContent responseContent = default)
+            HttpContent? responseContent = default)
         {
             _httpStatusCode = httpStatusCode;
             _responseContent = responseContent;
@@ -34,7 +34,12 @@ namespace Telegram.Bot.Tests.Unit
                 return Task.FromResult(_action.Invoke(request));
             }
 
-            var httpResponse = new HttpResponseMessage(_httpStatusCode)
+            if (_httpStatusCode is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            HttpResponseMessage httpResponse = new(_httpStatusCode.Value)
             {
                 Content = _responseContent
             };

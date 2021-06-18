@@ -23,7 +23,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 },
             };
 
-            AnswerInlineQueryRequest request = new AnswerInlineQueryRequest("query_id", results)
+            AnswerInlineQueryRequest request = new("query_id", results)
             {
                 CacheTime = 0
             };
@@ -49,7 +49,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 },
             };
 
-            AnswerInlineQueryRequest request = new AnswerInlineQueryRequest("query_id", results)
+            AnswerInlineQueryRequest request = new("query_id", results)
             {
                 CacheTime = 0
             };

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -62,7 +62,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 ]
             }";
 
-            var message = JsonConvert.DeserializeObject<Message>(json);
+            Message message = JsonConvert.DeserializeObject<Message>(json);
 
             Assert.Equal(MessageType.Photo, message.Type);
             Assert.NotNull(message.Photo);
@@ -75,7 +75,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should serialize a photo message")]
         public void Should_Serialize_PhotoMessage()
         {
-            Message message = new Message
+            Message message = new()
             {
                 MessageId = 1234,
                 From = new User
@@ -129,7 +129,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
                 }
             };
 
-            var json = JsonConvert.SerializeObject(message);
+            string json = JsonConvert.SerializeObject(message);
 
             Assert.NotNull(json);
             Assert.True(json.Length > 100);
