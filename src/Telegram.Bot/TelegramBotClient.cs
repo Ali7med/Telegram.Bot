@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Args;
@@ -19,20 +20,23 @@ namespace Telegram.Bot
     /// </summary>
     public class TelegramBotClient : ITelegramBotClient
     {
-        private const string BaseUrl = "https://api.telegram.org/bot";
-        private const string BaseFileUrl = "https://api.telegram.org/file/bot";
+        private readonly string BaseTelegramUrl = "https://api.telegram.org";
+        private static readonly Update[] EmptyUpdates = { };
 
-        private readonly string _baseRequestUrl;
+        // Max long value that fits 52 bits is 9007199254740991 and is 16 chars long
+        private static readonly Regex TokenFormat = new("^(?<token>[-]?[0-9]{1,16}):.*$", RegexOptions.Compiled);
+
         private readonly string _baseFileUrl;
-
+        private readonly string _baseRequestUrl;
+        private readonly bool _localBotServer;
         private readonly HttpClient _httpClient;
 
         private IExceptionParser _exceptionParser = new ExceptionParser();
 
-        /// <inheritdoc/>
-        public int BotId { get; }
-
         #region Config Properties
+
+        /// <inheritdoc/>
+        public long? BotId { get; }
 
         /// <summary>
         /// Timeout for requests
@@ -54,15 +58,16 @@ namespace Telegram.Bot
 
         #region Events
 
+
         /// <summary>
         /// Occurs before sending a request to API
         /// </summary>
-        public event EventHandler<ApiRequestEventArgs>? MakingApiRequest;
+        public event AsyncEventHandler<ApiRequestEventArgs>? OnMakingApiRequest;
 
         /// <summary>
         /// Occurs after receiving the response to an API request
         /// </summary>
-        public event EventHandler<ApiResponseEventArgs>? ApiResponseReceived;
+        public event AsyncEventHandler<ApiResponseEventArgs>? OnApiResponseReceived;
 
         #endregion
 
@@ -71,59 +76,86 @@ namespace Telegram.Bot
         /// </summary>
         /// <param name="token">API token</param>
         /// <param name="httpClient">A custom <see cref="HttpClient"/></param>
+        /// <param name="baseUrl">
+        /// Used to change base url to your private bot api server URL. It looks like
+        /// http://localhost:8081. Path, query and fragment will be omitted if present.
+        /// </param>
         /// <exception cref="ArgumentException">
         /// Thrown if <paramref name="token"/> format is invalid
         /// </exception>
-        public TelegramBotClient(string token, HttpClient? httpClient = null)
+        /// <exception cref="ArgumentException">
+        /// Thrown if <paramref name="baseUrl"/> format is invalid
+        /// </exception>
+        public TelegramBotClient(string token,
+                                 HttpClient? httpClient = null,
+                                 string? baseUrl = default)
         {
             if (token is null) throw new ArgumentNullException(nameof(token));
 
-            string[] parts = token.Split(':');
-            if (parts.Length > 1 && int.TryParse(parts[0], out var id))
+            var match = TokenFormat.Match(token);
+            if (match.Success)
             {
-                BotId = id;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    "Invalid format. A valid token looks like \"1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy\".",
-                    nameof(token)
-                );
+                var botIdString = match.Groups["token"].Value;
+                if (long.TryParse(botIdString, out var botId))
+                {
+                    BotId = botId;
+                }
             }
 
-            _baseRequestUrl = $"{BaseUrl}{token}/";
-            _baseFileUrl = $"{BaseFileUrl}{token}/";
+            _localBotServer = TrySetBaseUrl(
+                baseUrl ?? BaseTelegramUrl,
+                out var effectiveBaseUrl
+            );
+
+            _baseRequestUrl = $"{effectiveBaseUrl}/bot{token}";
+            _baseFileUrl = $"{effectiveBaseUrl}/file/bot{token}";
             _httpClient = httpClient ?? new HttpClient();
         }
 
-        #region Helpers
 
-        /// <inheritdoc />
-        public async Task<TResult> MakeRequestAsync<TResult>(
-            IRequest<TResult> request,
-            CancellationToken cancellationToken = default)
+        private static bool TrySetBaseUrl(
+             string baseUrl,
+             out string target)
         {
-            var url = new Uri($"{_baseRequestUrl}{request.MethodName}", UriKind.Absolute);
-            var httpRequest = new HttpRequestMessage(request.Method, url)
-            {
-                Content = request.ToHttpContent()
-            };
+            if (baseUrl is null) throw new ArgumentNullException(nameof(baseUrl));
 
-            ApiRequestEventArgs? requestEventArgs = default;
-
-            if (MakingApiRequest != null)
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri) ||
+                string.IsNullOrEmpty(baseUri.Scheme) ||
+                string.IsNullOrEmpty(baseUri.Authority))
             {
-                requestEventArgs = new ApiRequestEventArgs(
-                    request.MethodName,
-                    httpRequest.Content
+                throw new ArgumentException(
+                    "Invalid format. A valid base url looks \"http://localhost:8081\" ",
+                    nameof(baseUrl)
                 );
-                MakingApiRequest.Invoke(this, requestEventArgs);
             }
 
-            HttpResponseMessage? httpResponse;
+            if (!baseUri.Host.Equals("api.telegram.org", StringComparison.Ordinal))
+            {
+                target = $"{baseUri.Scheme}://{baseUri.Authority}";
+                return true;
+            }
+
+            target = baseUrl;
+            return false;
+        }
+
+#if DEBUG
+        #region For testing purposes
+
+        internal string BaseRequestUrl => _baseRequestUrl;
+        internal string BaseFileUrl => _baseFileUrl;
+        internal bool LocalBotServer => _localBotServer;
+
+        #endregion
+#endif
+
+        #region Helpers
+
+        private static async Task<HttpResponseMessage> SendAsync(HttpClient httpClient, HttpRequestMessage httpRequest, CancellationToken cancellationToken)
+        {
             try
             {
-                httpResponse = await _httpClient.SendAsync(httpRequest, cancellationToken)
+                return await httpClient.SendAsync(httpRequest, cancellationToken)
                     .ConfigureAwait(false);
             }
             catch (TaskCanceledException exception)
@@ -139,41 +171,68 @@ namespace Telegram.Bot
             {
                 throw new RequestException("Exception during making request", exception);
             }
+        }
 
-            try
+        /// <inheritdoc />
+        public async Task<TResult> MakeRequestAsync<TResult>(
+            IRequest<TResult> request,
+            CancellationToken cancellationToken = default)
+        {
+            var url = $"{_baseRequestUrl}/{request.MethodName}";
+
+            var httpRequest = new HttpRequestMessage(request.Method, url)
             {
-                if (ApiResponseReceived != null)
+                Content = request.ToHttpContent()
+            };
+
+
+            if (OnMakingApiRequest != null)
+            {
+                var reqDataArgs = new ApiRequestEventArgs
                 {
-                    requestEventArgs ??= new ApiRequestEventArgs(
-                        request.MethodName,
-                        httpRequest.Content
-                    );
-                    var responseEventArgs = new ApiResponseEventArgs(
-                        httpResponse,
-                        requestEventArgs
-                    );
-                    ApiResponseReceived.Invoke(this, responseEventArgs);
-                }
+                    MethodName = request.MethodName,
+                    HttpContent = httpRequest.Content,
+                };
 
-                if (httpResponse.StatusCode != HttpStatusCode.OK)
+                await OnMakingApiRequest.Invoke(this, reqDataArgs, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            using HttpResponseMessage? httpResponse = await SendAsync(_httpClient, httpRequest, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (OnApiResponseReceived != null)
+            {
+                var reqDataArgs = new ApiRequestEventArgs
                 {
-                    var failedApiResponse = await httpResponse
-                        .DeserializeContentAsync<ApiResponse>()
-                        .ConfigureAwait(false);
+                    MethodName = request.MethodName,
+                    HttpContent = httpRequest.Content,
+                };
+                await OnApiResponseReceived.Invoke(
+                    this,
+                    new ApiResponseEventArgs
+                    {
+                        ResponseMessage = httpResponse,
+                        ApiRequestEventArgs = reqDataArgs
+                    },
+                    cancellationToken
+                ).ConfigureAwait(false);
+            }
 
-                    throw ExceptionParser.Parse(failedApiResponse);
-                }
-
-                var successfulApiResponse = await httpResponse
-                    .DeserializeContentAsync<SuccessfulApiResponse<TResult>>()
+            if (httpResponse.StatusCode != HttpStatusCode.OK)
+            {
+                var failedApiResponse = await httpResponse
+                    .DeserializeContentAsync<ApiResponse>()
                     .ConfigureAwait(false);
 
-                return successfulApiResponse.Result;
+                throw ExceptionParser.Parse(failedApiResponse);
             }
-            finally
-            {
-                httpResponse?.Dispose();
-            }
+
+            var successfulApiResponse = await httpResponse
+                .DeserializeContentAsync<SuccessfulApiResponse<TResult>>()
+                .ConfigureAwait(false);
+
+            return successfulApiResponse.Result;
         }
 
         /// <inheritdoc />
@@ -181,68 +240,52 @@ namespace Telegram.Bot
             IRequest<TResult> request,
             CancellationToken cancellationToken = default)
         {
-            var url = new Uri($"{_baseRequestUrl}{request.MethodName}", UriKind.Absolute);
+            var url = $"{_baseRequestUrl}/{request.MethodName}";
+
             var httpRequest = new HttpRequestMessage(request.Method, url)
             {
                 Content = request.ToHttpContent()
             };
 
-            ApiRequestEventArgs? requestEventArgs = default;
 
-            if (MakingApiRequest != null)
+            if (OnMakingApiRequest != null)
             {
-                requestEventArgs = new ApiRequestEventArgs(
-                    request.MethodName,
-                    httpRequest.Content
-                );
-                MakingApiRequest.Invoke(this, requestEventArgs);
-            }
+                var reqDataArgs = new ApiRequestEventArgs
+                {
+                    MethodName = request.MethodName,
+                    HttpContent = httpRequest.Content,
+                };
 
-            HttpResponseMessage? httpResponse;
-            try
-            {
-                httpResponse = await _httpClient.SendAsync(httpRequest, cancellationToken)
+                await OnMakingApiRequest.Invoke(this, reqDataArgs, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (TaskCanceledException exception)
+
+            using HttpResponseMessage? httpResponse = await SendAsync(_httpClient, httpRequest, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (OnApiResponseReceived != null)
             {
-                if (cancellationToken.IsCancellationRequested)
+                var reqDataArgs = new ApiRequestEventArgs
                 {
-                    throw;
-                }
-
-                throw new RequestException("Request timed out", exception);
+                    MethodName = request.MethodName,
+                    HttpContent = httpRequest.Content,
+                };
+                await OnApiResponseReceived.Invoke(
+                    this,
+                    new ApiResponseEventArgs
+                    {
+                        ResponseMessage = httpResponse,
+                        ApiRequestEventArgs = reqDataArgs
+                    },
+                    cancellationToken
+                ).ConfigureAwait(false);
             }
-            catch (Exception exception)
-            {
-                throw new RequestException("Exception during making request", exception);
-            }
 
-            try
-            {
-                if (ApiResponseReceived != null)
-                {
-                    requestEventArgs ??= new ApiRequestEventArgs(
-                        request.MethodName,
-                        httpRequest.Content
-                    );
-                    var responseEventArgs = new ApiResponseEventArgs(
-                        httpResponse,
-                        requestEventArgs
-                    );
-                    ApiResponseReceived.Invoke(this, responseEventArgs);
-                }
+            var apiResponse = await httpResponse
+                .DeserializeContentAsync<ApiResponse<TResult>>()
+                .ConfigureAwait(false);
 
-                var apiResponse = await httpResponse
-                    .DeserializeContentAsync<ApiResponse<TResult>>()
-                    .ConfigureAwait(false);
-
-                return apiResponse;
-            }
-            finally
-            {
-                httpResponse?.Dispose();
-            }
+            return apiResponse;
         }
 
         /// <summary>
@@ -267,91 +310,106 @@ namespace Telegram.Bot
         #endregion Helpers
 
         /// <inheritdoc />
-        public async Task DownloadFileAsync(
-            string filePath,
-            Stream destination,
-            CancellationToken cancellationToken = default)
+        public async Task DownloadFileAsync(string filePath,
+                                            Stream destination,
+                                            CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(filePath) || filePath.Length < 2)
-            {
+            if (filePath is { Length: < 2 })
                 throw new ArgumentException("Invalid file path", nameof(filePath));
-            }
 
             if (destination is null)
-            {
                 throw new ArgumentNullException(nameof(destination));
+
+            //case file is local
+            if (_localBotServer && System.IO.File.Exists(filePath))
+            {
+#if NETCOREAPP3_1_OR_GREATER
+                await using var fileStream = System.IO.File.OpenRead(filePath);
+#else
+                using var fileStream = System.IO.File.OpenRead(filePath);
+#endif
+                await fileStream.CopyToAsync(destination).ConfigureAwait(false);
+
+                return;
             }
 
-            var fileUri = new Uri($"{_baseFileUrl}{filePath}", UriKind.Absolute);
+            var fileUri = $"{_baseFileUrl}/{filePath}";
 
-            HttpResponseMessage? httpResponse;
+            //var response = await _httpClient
+            //    .GetAsync(fileUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            using var httpResponse = await GetAsync(_httpClient, fileUri, cancellationToken)
+                .ConfigureAwait(false);
+            //response.EnsureSuccessStatusCode();
+
+            //using (httpResponse)
+            //{
+            //await response.Content.CopyToAsync(destination)
+            //    .ConfigureAwait(false);
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var failedApiResponse = await httpResponse
+                    .DeserializeContentAsync<ApiResponse>(includeBody: false)
+                    .ConfigureAwait(false);
+
+                throw ExceptionParser.Parse(failedApiResponse);
+            }
+
+            if (httpResponse.Content is null)
+                throw new RequestException(
+                    "Response doesn't contain any content",
+                    httpResponse.StatusCode
+                );
+
             try
             {
-                httpResponse = await _httpClient
-                    .GetAsync(fileUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                await httpResponse.Content.CopyToAsync(destination)
                     .ConfigureAwait(false);
-            }
-            catch (TaskCanceledException exception)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-
-                throw new RequestException("Request timed out", exception);
             }
             catch (Exception exception)
             {
-                throw new RequestException("Exception during file download", exception);
+                throw new RequestException(
+                    "Exception during file download",
+                    httpResponse.StatusCode,
+                    exception
+                );
             }
+            //}
 
-            try
+            static async Task<HttpResponseMessage> GetAsync(HttpClient httpClient, string requestUri, CancellationToken cancellationToken)
             {
-                if (!httpResponse.IsSuccessStatusCode)
-                {
-                    var failedApiResponse = await httpResponse
-                        .DeserializeContentAsync<ApiResponse>(includeBody: false)
-                        .ConfigureAwait(false);
-
-                    throw ExceptionParser.Parse(failedApiResponse);
-                }
-
-                if (httpResponse.Content is null)
-                    throw new RequestException(
-                        "Response doesn't contain any content",
-                        httpResponse.StatusCode
-                    );
-
                 try
                 {
-                    await httpResponse.Content.CopyToAsync(destination)
+                    return await httpClient
+                        .GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                         .ConfigureAwait(false);
+                }
+                catch (TaskCanceledException exception)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw;
+                    }
+
+                    throw new RequestException("Request timed out", exception);
                 }
                 catch (Exception exception)
                 {
-                    throw new RequestException(
-                        "Exception during file download",
-                        httpResponse.StatusCode,
-                        exception
-                    );
+                    throw new RequestException("Exception during file download", exception);
                 }
             }
-            finally
-            {
-                httpResponse?.Dispose();
-            }
+
         }
 
         /// <inheritdoc />
-        public async Task<File> GetInfoAndDownloadFileAsync(
-            string fileId,
-            Stream destination,
-            CancellationToken cancellationToken = default)
+        public async Task<File> GetInfoAndDownloadFileAsync(string fileId,
+                                                            Stream destination,
+                                                            CancellationToken cancellationToken = default)
         {
             var file = await MakeRequestAsync(new GetFileRequest(fileId), cancellationToken)
                 .ConfigureAwait(false);
 
-            await DownloadFileAsync(file.FilePath!, destination, cancellationToken)
+            await DownloadFileAsync(file.FilePath, destination, cancellationToken)
                 .ConfigureAwait(false);
 
             return file;
