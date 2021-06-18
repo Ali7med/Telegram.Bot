@@ -21,7 +21,6 @@ namespace Telegram.Bot
     public class TelegramBotClient : ITelegramBotClient
     {
         private readonly string BaseTelegramUrl = "https://api.telegram.org";
-        private static readonly Update[] EmptyUpdates = { };
 
         // Max long value that fits 52 bits is 9007199254740991 and is 16 chars long
         private static readonly Regex TokenFormat = new("^(?<token>[-]?[0-9]{1,16}):.*$", RegexOptions.Compiled);
