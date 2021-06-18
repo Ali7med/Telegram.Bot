@@ -11,7 +11,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
         [Fact(DisplayName = "Should serialize a document message")]
         public void Should_Serialize_DocumentMessage()
         {
-            var documentMessage = new Message
+            Message documentMessage = new()
             {
                 MessageId = 1234,
                 From = new User
@@ -121,7 +121,7 @@ namespace Telegram.Bot.Tests.Unit.Serialization
             }
             ";
 
-            var message = JsonConvert.DeserializeObject<Message>(json);
+            Message message = JsonConvert.DeserializeObject<Message>(json);
 
             Assert.Equal(MessageType.Document, message.Type);
             Assert.NotNull(message.Document);

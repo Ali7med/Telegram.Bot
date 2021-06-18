@@ -14,17 +14,17 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_On_Incorrect_Proxy()
         {
-            var httpClientHandler = new HttpClientHandler
+            HttpClientHandler httpClientHandler = new()
             {
                 Proxy = new WebProxy("http://proxy.test")
             };
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -38,10 +38,10 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_TaskCancelledException_On_Cancelled_Token()
         {
-            var botClient = new TelegramBotClient("1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy");
+            TelegramBotClient botClient = new ("1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy");
 
-            using var cts = new CancellationTokenSource();
-            var token = cts.Token;
+            using CancellationTokenSource cts = new ();
+            CancellationToken token = cts.Token;
             cts.Cancel();
 
             await Assert.ThrowsAsync<TaskCanceledException>(
@@ -52,16 +52,16 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_On_Timed_Out_Request()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 _ => throw new TaskCanceledException()
             );
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException = await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -72,15 +72,15 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_With_Null_Response_Content()
         {
-            var httpClientHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpClientHandler);
+            MockHttpMessageHandler httpClientHandler = new (HttpStatusCode.OK);
+            HttpClient httpClient = new (httpClientHandler);
 
-            var botClient = new TelegramBotClient(
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -92,18 +92,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_Due_To_Empty_Or_Null_Content()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 HttpStatusCode.OK,
                 new StringContent(string.Empty)
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -117,18 +117,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_With_JsonSerializationException_On_Successful_Response()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 HttpStatusCode.OK,
                 new StringContent("{}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -143,18 +143,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_With_JsonSerializationException_On_Failed_Response()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 HttpStatusCode.BadRequest,
                 new StringContent("{}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -169,18 +169,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_ApiRequestException_With_JsonSerializationException_On_Failed_Response()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 HttpStatusCode.BadRequest,
                 new StringContent(@"{""ok"":false,""description"":""Bad Request: chat_id is incorrect"",""error_code"":400}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var apiRequestException =  await Assert.ThrowsAsync<ApiRequestException>(
+            ApiRequestException apiRequestException = await Assert.ThrowsAsync<ApiRequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
@@ -191,13 +191,13 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Pass_Same_Instance_Of_Request_Event_Args()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new (
                 HttpStatusCode.OK,
                 new StringContent(@"{""ok"":true,""result"":[]}}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new (httpClientHandler);
+            TelegramBotClient botClient = new (
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
@@ -205,14 +205,15 @@ namespace Telegram.Bot.Tests.Unit
             ApiRequestEventArgs requestEventArgs1 = default;
             ApiRequestEventArgs requestEventArgs2 = default;
 
-            botClient.MakingApiRequest += (sender, args) => requestEventArgs1 = args;
-            botClient.ApiResponseReceived += (sender, args) => requestEventArgs2 = args.ApiRequestEventArgs;
+            botClient.OnMakingApiRequest += async (sender, args, ct) => requestEventArgs1 = args;
+            botClient.OnApiResponseReceived += async (sender, args, ct) => requestEventArgs2 = args.ApiRequestEventArgs;
 
             await botClient.GetUpdatesAsync();
 
             Assert.NotNull(requestEventArgs1);
             Assert.NotNull(requestEventArgs2);
-            Assert.Equal(requestEventArgs1, requestEventArgs2);
+            Assert.Equal(requestEventArgs1.MethodName, requestEventArgs2.MethodName);
+            Assert.Equal(requestEventArgs1.HttpContent, requestEventArgs2.HttpContent);
         }
     }
 }

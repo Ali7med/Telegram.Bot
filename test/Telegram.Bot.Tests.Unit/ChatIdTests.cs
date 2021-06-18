@@ -15,52 +15,39 @@ namespace Telegram.Bot.Tests.Unit
         [InlineData("0")]
         [InlineData("999999999999999")]
         [InlineData("@99999999999999999999999999999999")]
-        public void Valid_User_Name(string userName)
+        public void Should_Create_ChatId_From_Username(string userName)
         {
-            var chatId = new ChatId(123);
-            var chatId = new ChatId(userName);
+            ChatId? chatId = new (userName);
 
-            //check int & long
-            Assert.Null(chatId.Username);
-            Assert.Equal(123, chatId.Identifier);
-
-            chatId = new ChatId(123L);
-            Assert.Null(chatId.Username);
-            Assert.Equal(123L, chatId.Identifier);
-
-            // check string values
-            chatId = new ChatId(123.ToString());
-            Assert.Null(chatId.Username);
-            Assert.Equal(123, chatId.Identifier);
-
-            chatId = new ChatId(123L.ToString());
-            Assert.Null(chatId.Username);
-            Assert.Equal(123L, chatId.Identifier);
-
-            chatId = new ChatId("@valid_username");
-            Assert.Equal("@valid_username", chatId.Username);
-            Assert.Equal(0, chatId.Identifier);
-
-            Assert.Throws<ArgumentException>(() => new ChatId("username"));
             Assert.Equal(chatId, userName);
+            Assert.Equal(chatId, userName);
+            Assert.True(chatId.Equals(userName));
+            Assert.True(chatId == userName);
+            Assert.False(chatId != userName);
+            Assert.False(chatId == "@somerandomchat");
+            //Assert.False(chatId == 1111);
         }
 
+        [Theory]
+        [InlineData(12345L)]
+        [InlineData(0L)]
+        [InlineData(999999999999999L)]
+        public void Should_Create_ChatId_From_Identifier(long identifier)
+        {
+            ChatId chatId = new (identifier);
+
+            Assert.Equal(chatId, identifier);
+            Assert.True(chatId.Equals(identifier));
+            //Assert.True(chatId == identifier);
+            //Assert.False(chatId != identifier);
+            Assert.False(chatId == "@somerandomchat");
+            //Assert.False(chatId == 1111);
+        }
 
         [Fact]
-        public void Null_User_Name()
+        public void Should_Throw_If_Username_Is_Null()
         {
-            //int
-            Assert.Equal("123", new ChatId("123").ToString());
-            Assert.Equal("123", new ChatId(123).ToString());
-
-            //long
-            Assert.Equal("123456789012", new ChatId((123456789012)).ToString());
-            Assert.Equal("123456789012", new ChatId("123456789012").ToString());
-            Assert.Throws<ArgumentNullException>(() => new ChatId(null));
-        }
-
-            //username
-            Assert.Equal("@valid_username", new ChatId("@valid_username").ToString());
+            Assert.Throws<ArgumentNullException>(() => new ChatId(null!));
         }
 
         [Theory]
@@ -69,33 +56,11 @@ namespace Telegram.Bot.Tests.Unit
         [InlineData("@User")]
         [InlineData("@1234")]
         [InlineData("999999999999999999999999")]
-        [InlineData("@999999999999999999999999999999999")]
-        public void Invalid_User_Name(string userName)
+        [InlineData("99.9")]
+        [InlineData("")]
+        public void Should_Throw_On_Invalid_Username(string userName)
         {
-            //with Identifier
-            var chatId = new ChatId(123);
-            Assert.True(chatId.Equals(123));
-            Assert.False(123.Equals(chatId)); // to be aware
-            Assert.True(chatId == 123);
-            Assert.True(123 == chatId);
-
-            chatId = new ChatId("123");
-            Assert.True(chatId.Equals(123));
-            Assert.False(123.Equals(chatId)); // to be aware
-            Assert.True(chatId == 123);
-            Assert.True(123 == chatId);
-
-            //with username
-            chatId = new ChatId("@username");
-            Assert.True(chatId.Equals("@username"));
-            Assert.True("@username".Equals(chatId));
-            Assert.True(chatId == "@username");
-            Assert.True("@username" == chatId);
-
-            //with other ChatId
-            Assert.Equal(chatId, chatId);
-            Assert.Equal(new ChatId(123), new ChatId(123));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ChatId(userName));
+            Assert.Throws<ArgumentException>(() => new ChatId(userName));
         }
     }
 }

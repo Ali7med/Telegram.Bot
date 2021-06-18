@@ -14,19 +14,19 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_On_Incorrect_Proxy()
         {
-            var httpClientHandler = new HttpClientHandler
+            HttpClientHandler httpClientHandler = new()
             {
                 Proxy = new WebProxy("http://proxy.test")
             };
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new(httpClientHandler);
+            TelegramBotClient botClient = new(
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            await using var memoryStream = new MemoryStream();
+            await using MemoryStream memoryStream = new();
 
-            var requestException =  await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.DownloadFileAsync(
                     filePath: "file/path",
                     destination: memoryStream
@@ -46,13 +46,13 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_TaskCancelledException_On_Cancelled_Token()
         {
-            var botClient = new TelegramBotClient("1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy");
+            TelegramBotClient botClient = new("1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy");
 
-            using var cts = new CancellationTokenSource();
-            var token = cts.Token;
+            using CancellationTokenSource cts = new();
+            CancellationToken token = cts.Token;
             cts.Cancel();
 
-            await using var memoryStream = new MemoryStream();
+            await using MemoryStream memoryStream = new();
 
             await Assert.ThrowsAsync<TaskCanceledException>(
                 async () => await botClient.DownloadFileAsync(
@@ -69,18 +69,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_On_Timed_Out_Request()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new(
                 _ => throw new TaskCanceledException()
             );
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new(httpClientHandler);
+            TelegramBotClient botClient = new(
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            await using var memoryStream = new MemoryStream();
+            await using MemoryStream memoryStream = new();
 
-            var requestException = await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.DownloadFileAsync(
                     filePath: "file/path",
                     destination: memoryStream
@@ -97,17 +97,17 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_With_Null_Response_Content()
         {
-            var httpClientHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpClientHandler);
+            MockHttpMessageHandler httpClientHandler = new(HttpStatusCode.OK);
+            HttpClient httpClient = new(httpClientHandler);
 
-            var botClient = new TelegramBotClient(
+            TelegramBotClient botClient = new(
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            await using var memoryStream = new MemoryStream();
+            await using MemoryStream memoryStream = new();
 
-            var requestException = await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.DownloadFileAsync(
                     filePath: "file/path",
                     destination: memoryStream
@@ -124,20 +124,20 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_RequestException_With_JsonSerializationException_On_Failed_Response()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new(
                 HttpStatusCode.NotFound,
                 new StringContent("{}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new(httpClientHandler);
+            TelegramBotClient botClient = new(
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            await using var memoryStream = new MemoryStream();
+            await using MemoryStream memoryStream = new();
 
-            var requestException = await Assert.ThrowsAsync<RequestException>(
+            RequestException requestException = await Assert.ThrowsAsync<RequestException>(
                 async () => await botClient.DownloadFileAsync(
                     filePath: "file/path",
                     destination: memoryStream
@@ -155,18 +155,18 @@ namespace Telegram.Bot.Tests.Unit
         [Fact]
         public async Task Should_Throw_ApiRequestException_With_JsonSerializationException_On_Failed_Response()
         {
-            var httpClientHandler = new MockHttpMessageHandler(
+            MockHttpMessageHandler httpClientHandler = new(
                 HttpStatusCode.NotFound,
                 new StringContent(@"{""ok"":false,""description"":""Not Found"",""error_code"":404}")
             );
 
-            var httpClient = new HttpClient(httpClientHandler);
-            var botClient = new TelegramBotClient(
+            HttpClient httpClient = new(httpClientHandler);
+            TelegramBotClient botClient = new(
                 "1234567:4TT8bAc8GHUspu3ERYn-KGcvsvGB9u_n4ddy",
                 httpClient
             );
 
-            var apiRequestException =  await Assert.ThrowsAsync<ApiRequestException>(
+            ApiRequestException apiRequestException = await Assert.ThrowsAsync<ApiRequestException>(
                 async () => await botClient.GetUpdatesAsync()
             );
 
