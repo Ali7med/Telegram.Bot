@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
@@ -12,7 +13,12 @@ namespace Telegram.Bot.Requests
     /// Send text messages
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SendMessageRequest : RequestBase<Message>, IChatTargetable
+    public class SendMessageRequest : RequestBase<Message>,
+                                      INotifiableMessage,
+                                      IReplyMessage,
+                                      IFormattableMessage,
+                                      IReplyMarkupMessage<IReplyMarkup>,
+                                      IEntities
     {
         /// <summary>
         /// Unique identifier for the target chat or username of the target channel
@@ -26,37 +32,37 @@ namespace Telegram.Bot.Requests
         [JsonProperty(Required = Required.Always)]
         public string Text { get; }
 
-        /// <summary>
-        /// Change, if you want Telegram apps to show bold, italic, fixed-width text or inline
-        /// URLs in your bot's message
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IEnumerable<MessageEntity> Entities { get; set; }
 
         /// <summary>
         /// Disables link previews for links in this message
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableWebPagePreview { get; set; }
+        public bool DisableWebPagePreview { get; set; }
 
-        /// <summary>
-        /// Sends the message silently. Users will receive a notification with no sound.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableNotification { get; set; }
+        public bool DisableNotification { get; set; }
 
-        /// <summary>
-        /// If the message is a reply, ID of the original message.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? ReplyToMessageId { get; set; }
 
         /// <summary>
-        /// A JSON-serialized object for a custom reply keyboard,
-        /// instructions to hide keyboard or to force a reply from the user.
+        /// Pass True, if the message should be sent even if the specified replied-to message is not found
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IReplyMarkup? ReplyMarkup { get; set; }
+        public bool? AllowSendingWithoutReply { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IReplyMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with chatId and text

@@ -105,7 +105,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 cts?.Dispose();
             }
 
-            bool PassthroughPredicate(Update _) => true;
+            static bool PassthroughPredicate(Update _) => true;
         }
 
         public async Task<Update> GetCallbackQueryUpdateAsync(
@@ -210,6 +210,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 case UpdateType.ShippingQuery:
                 case UpdateType.ChosenInlineResult:
                 case UpdateType.PollAnswer:
+                case UpdateType.ChatMember:
                     isAllowed = AllowedUsernames.Contains(
                         update.GetUser().Username,
                         StringComparer.OrdinalIgnoreCase

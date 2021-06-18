@@ -21,7 +21,7 @@ namespace Telegram.Bot.Requests
         /// User identifier of sticker file owner
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public int UserId { get; }
+        public long UserId { get; }
 
         /// <summary>
         /// Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not
@@ -33,7 +33,7 @@ namespace Telegram.Bot.Requests
         /// <summary>
         /// Initializes a new request with userId and pngSticker
         /// </summary>
-        public UploadStickerFileRequest(int userId, InputFileStream pngSticker)
+        public UploadStickerFileRequest(long userId, InputFileStream pngSticker)
             : base("uploadStickerFile")
         {
             UserId = userId;

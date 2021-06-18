@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -34,46 +35,28 @@ namespace Telegram.Bot.Requests
         { }
 
         /// <summary>
-        /// Automatically generates <see cref="MultipartFormDataContent"/> instance and adds
-        /// property passed in <paramref name="fileParameterName"/> parameter as a stream.
+        /// ToDo
         /// </summary>
-        /// <param name="fileParameterName">
-        /// Name of the property that should be added as a stream
-        /// </param>
+        /// <param name="fileParameterName"></param>
         /// <param name="inputFile"></param>
-        /// <returns>Generated instance of <see cref="MultipartFormDataContent"/></returns>
-        protected MultipartFormDataContent ToMultipartFormDataContent(
-            string fileParameterName,
-            InputFileStream inputFile)
+        /// <returns></returns>
+        protected MultipartFormDataContent ToMultipartFormDataContent(string fileParameterName, InputFileStream inputFile)
         {
             var multipartContent = GenerateMultipartFormDataContent(fileParameterName);
 
-            multipartContent.AddStreamContent(
-                inputFile.Content!,
-                fileParameterName,
-                inputFile.FileName!
-            );
+            multipartContent.AddStreamContent(inputFile.Content, fileParameterName, inputFile.FileName);
 
             return multipartContent;
         }
 
         /// <summary>
-        /// Automatically generates <see cref="MultipartFormDataContent"/> instance with string
-        /// data skipping properties passed in <paramref name="exceptPropertyNames"/> parameter.
-        /// All names of media properties should be passed in
-        /// <paramref name="exceptPropertyNames"/>.
+        /// ToDo
         /// </summary>
-        /// <param name="exceptPropertyNames">Properties to skip</param>
-        /// <returns>
-        /// Generated instance of <see cref="MultipartFormDataContent"/> without properties passed
-        /// in <paramref name="exceptPropertyNames"/>
-        /// </returns>
-        protected MultipartFormDataContent GenerateMultipartFormDataContent(
-            params string[] exceptPropertyNames)
+        /// <param name="exceptPropertyNames"></param>
+        /// <returns></returns>
+        protected MultipartFormDataContent GenerateMultipartFormDataContent(params string[] exceptPropertyNames)
         {
-            var multipartContent = new MultipartFormDataContent(
-                Guid.NewGuid().ToString() + DateTime.UtcNow.Ticks
-            );
+            var multipartContent = new MultipartFormDataContent(Guid.NewGuid().ToString() + DateTime.UtcNow.Ticks.ToString());
 
             var stringContents = JObject.FromObject(this)
                 .Properties()
@@ -83,11 +66,8 @@ namespace Telegram.Bot.Requests
                     prop.Name,
                     Content = new StringContent(prop.Value.ToString())
                 });
-
             foreach (var strContent in stringContents)
-            {
                 multipartContent.Add(strContent.Content, strContent.Name);
-            }
 
             return multipartContent;
         }

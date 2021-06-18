@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
@@ -10,7 +11,11 @@ namespace Telegram.Bot.Types.InlineQueryResults
     /// Alternatively, you can provide message_text to send it instead of the animation.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultMpeg4Gif : InlineQueryResultBase
+    public class InlineQueryResultMpeg4Gif : InlineQueryResultBase,
+        ICaptionInlineQueryResult,
+        IThumbnailUrlInlineQueryResult,
+        ITitleInlineQueryResult,
+        IInputMessageContentResult
     {
         /// <summary>
         /// A valid URL for the MP4 file. File size must not exceed 1MB.
@@ -18,65 +23,55 @@ namespace Telegram.Bot.Types.InlineQueryResults
         [JsonProperty(Required = Required.Always)]
         public string Mpeg4Url { get; set; }
 
-        /// <summary>
-        /// URL of the static thumbnail for the result.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public string ThumbUrl { get; }
+        public string ThumbUrl { get; set; }
 
         /// <summary>
-        /// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or
-        /// “video/mp4”. Defaults to “image/jpeg”
+        /// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? ThumbMimeType { get; set; }
+        public string ThumbMimeType { get; set; }
 
         /// <summary>
         /// Optional. Video width
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? Mpeg4Width { get; set; }
+        public int Mpeg4Width { get; set; }
 
         /// <summary>
         /// Optional. Video height
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? Mpeg4Height { get; set; }
+        public int Mpeg4Height { get; set; }
 
         /// <summary>
         /// Optional. Duration of the Video
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? Mpeg4Duration { get; set; }
+        public int Mpeg4Duration { get; set; }
 
-        /// <summary>
-        /// Caption of the result to be sent, 0-1024 characters.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
-        /// <summary>
-        /// Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width
-        /// text or inline URLs in the media caption.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
 
-        /// <summary>
-        /// Title of the result
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Title { get; set; }
+        public MessageEntity[] CaptionEntities { get; set; }
 
-        /// <summary>
-        /// Content of the message to be sent
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public string Title { get; set; }
 
-#pragma warning disable 8618
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InputMessageContentBase InputMessageContent { get; set; }
+
         private InlineQueryResultMpeg4Gif()
-#pragma warning restore 8618
             : base(InlineQueryResultType.Mpeg4Gif)
         {
         }

@@ -1,20 +1,23 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents a link to a photo. By default, this photo will be sent by the user with
-    /// optional caption. Alternatively, you can provide <see cref="InputMessageContent"/> to
-    /// send it instead of photo.
+    /// Represents a link to a photo.
+    /// By default, this photo will be sent by the user with optional caption.
+    /// Alternatively, you can provide message_text to send it instead of photo.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultPhoto : InlineQueryResultBase
+    public class InlineQueryResultPhoto : InlineQueryResultBase,
+        ICaptionInlineQueryResult,
+        IThumbnailUrlInlineQueryResult,
+        ITitleInlineQueryResult,
+        IInputMessageContentResult
     {
-        /// <summary>
-        /// URL of the thumbnail for the photo
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string ThumbUrl { get; set; }
 
@@ -28,48 +31,41 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Optional. Width of the photo
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? PhotoWidth { get; set; }
+        public int PhotoWidth { get; set; }
 
         /// <summary>
         /// Optional. Height of the photo
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? PhotoHeight { get; set; }
+        public int PhotoHeight { get; set; }
 
         /// <summary>
         /// Optional. Short description of the result
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
-        /// <summary>
-        /// Optional. Caption of the result to be sent, 0-1024 characters.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
-        /// <summary>
-        /// Optional. Send Markdown or HTML, if you want Telegram apps to show bold, italic,
-        /// fixed-width text or inline URLs in the media caption.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public MessageEntity[] CaptionEntities { get; set; }
 
-        /// <summary>
-        /// Optional. Title of the result
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Title { get; set; }
+        public ParseMode ParseMode { get; set; }
 
-        /// <summary>
-        /// Optional. Content of the message to be sent instead of the photo
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public string Title { get; set; }
 
-#pragma warning disable 8618
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InputMessageContentBase InputMessageContent { get; set; }
+
         private InlineQueryResultPhoto()
-#pragma warning restore 8618
             : base(InlineQueryResultType.Photo)
         {
         }

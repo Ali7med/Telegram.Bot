@@ -42,9 +42,9 @@ namespace Telegram.Bot.Tests.Integ.Framework.XunitExtensions
             // Don't want to use .Concat + .ToDictionary because of the possibility of overriding
             // types, so instead we'll just let collection fixtures override assembly fixtures.
             var combinedFixtures = new Dictionary<Type, object>(_assemblyFixtureMappings);
-            foreach (var kvp in CollectionFixtureMappings)
+            foreach (var (key, value) in CollectionFixtureMappings)
             {
-                combinedFixtures[kvp.Key] = kvp.Value;
+                combinedFixtures[key] = value;
             }
 
             // We've done everything we need, so let the built-in types do the rest of the

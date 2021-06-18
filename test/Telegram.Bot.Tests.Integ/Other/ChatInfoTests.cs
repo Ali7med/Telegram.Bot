@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,9 +39,6 @@ namespace Telegram.Bot.Tests.Integ.Other
             // Don't compare invite links, it's easy to invalidate them accidentally so the test
             // fails for no good reason
             // Assert.Equal(supergroupChat.InviteLink, chat.InviteLink);
-            Assert.NotNull(chat.InviteLink);
-            Assert.NotEmpty(chat.InviteLink);
-            Assert.StartsWith("https://t.me", chat.InviteLink);
             Assert.Equal(supergroupChat.PinnedMessage, chat.PinnedMessage);
             Assert.Equal(supergroupChat.StickerSetName, chat.StickerSetName);
             Assert.Equal(supergroupChat.CanSetStickerSet, chat.CanSetStickerSet);
@@ -115,14 +111,16 @@ namespace Telegram.Bot.Tests.Integ.Other
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.GetChat)]
         public async Task Should_Get_Private_Chat()
         {
-            /* In order to have a private chat id, take the Creator of supergroup and use his User ID because
-             * for a regular user, "User ID" is the same number as "Private Chat ID".
-             */
-            ChatMember[] chatAdmins = await BotClient.GetChatAdministratorsAsync(chatId: _fixture.SupergroupChat);
-
-            long privateChatId = chatAdmins
-                .Single(member => member.Status == ChatMemberStatus.Creator)
-                .User.Id;
+            long privateChatId;
+            {
+                /* In order to have a private chat id, take the Creator of supergroup and use his User ID because
+                 * for a regular user, "User ID" is the same number as "Private Chat ID".
+                 */
+                ChatMember[] chatAdmins = await BotClient.GetChatAdministratorsAsync(_fixture.SupergroupChat);
+                privateChatId = chatAdmins
+                    .Single(member => member.Status == ChatMemberStatus.Creator)
+                    .User.Id;
+            }
 
             Chat chat = await BotClient.GetChatAsync(
                 chatId: privateChatId
@@ -132,12 +130,11 @@ namespace Telegram.Bot.Tests.Integ.Other
             Assert.Equal(privateChatId, chat.Id);
 
             // Mandatory fields:
-            Assert.NotEmpty(chat.Username!);
-            Assert.NotEmpty(chat.FirstName!);
+            Assert.NotEmpty(chat.Username);
+            Assert.NotEmpty(chat.FirstName);
 
             // Following fields of a chat do not apply to a private chat:
             Assert.Null(chat.Title);
-            Assert.Null(chat.Permissions);
             Assert.Null(chat.Description);
             Assert.Null(chat.InviteLink);
             Assert.Null(chat.PinnedMessage);
@@ -160,16 +157,16 @@ namespace Telegram.Bot.Tests.Integ.Other
         /// The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear
         /// its typing status)
         /// </remarks>
-        [OrderedFact("Should send action to chat: recording audio")]
+        [OrderedFact("Should send action to chat: recording voice")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendChatAction)]
         public async Task Should_Send_Chat_Action()
         {
             await BotClient.SendChatActionAsync(
                 chatId: _fixture.SupergroupChat.Id,
-                chatAction: ChatAction.RecordAudio
+                chatAction: ChatAction.RecordVoice
             );
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Task.Delay(5_000);
         }
     }
 }

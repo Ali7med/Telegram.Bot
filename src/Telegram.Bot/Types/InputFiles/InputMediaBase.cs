@@ -1,3 +1,4 @@
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
@@ -15,40 +16,30 @@ namespace Telegram.Bot.Types
         /// Type of the media
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Type { get; }
+        public string Type { get; protected set; }
 
         /// <summary>
         /// Media to send
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public InputMedia Media { get; }
+        public InputMedia Media { get; set; } // ToDo Should be get-only. Media is set in ctors
 
         /// <summary>
         /// Optional. Caption of the photo to be sent, 0-1024 characters
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
         /// <summary>
-        /// Change, if you want Telegram apps to show bold, italic, fixed-width text or inline
-        /// URLs in a caption
+        /// Change, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in a caption
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
 
         /// <summary>
-        /// Constructs an <see cref="InputMediaBase"/> from a <see cref="InputMedia"/> and a
-        /// type of the media
+        /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
         /// </summary>
-        /// <param name="media"><see cref="InputMedia"/> to be sent</param>
-        /// <param name="type">Type of of the media to be sent</param>
-        /// <remarks>
-        /// See <see href="https://core.telegram.org/bots/api#inputmedia"/> for valid types of media
-        /// </remarks>
-        protected InputMediaBase(InputMedia media, string type)
-        {
-            Type = type;
-            Media = media;
-        }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public MessageEntity[] CaptionEntities { get; set; }
     }
 }

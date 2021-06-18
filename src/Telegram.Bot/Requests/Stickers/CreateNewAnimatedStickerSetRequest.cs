@@ -19,7 +19,7 @@ namespace Telegram.Bot.Requests
         /// User identifier of sticker set owner
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public int UserId { get; }
+        public long UserId { get; }
 
         /// <summary>
         /// Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals).
@@ -71,7 +71,7 @@ namespace Telegram.Bot.Requests
         /// <param name="tgsSticker">Tgs animation with the sticker</param>
         /// <param name="emojis">One or more emoji corresponding to the sticker</param>
         public CreateNewAnimatedStickerSetRequest(
-            int userId,
+            long userId,
             string name,
             string title,
             InputFileStream tgsSticker,

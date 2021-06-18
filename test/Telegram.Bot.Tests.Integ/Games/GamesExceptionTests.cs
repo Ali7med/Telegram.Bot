@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Tests.Integ.Framework;
-using Telegram.Bot.Types.ReplyMarkups;
 using Xunit;
 
 namespace Telegram.Bot.Tests.Integ.Games
@@ -19,87 +18,49 @@ namespace Telegram.Bot.Tests.Integ.Games
             _fixture = fixture;
         }
 
-        [OrderedFact("Should throw ApiRequestException")]
+        [OrderedFact("Should throw InvalidGameShortNameException")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendGame)]
-        public async Task Should_Throw_ApiRequestException_When_GameShortName_Invalid()
+        public async Task Should_Throw_InvalidGameShortNameException()
         {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(async () =>
-                await BotClient.SendGameAsync(
+            InvalidGameShortNameException e = await Assert.ThrowsAsync<InvalidGameShortNameException>(() =>
+                BotClient.SendGameAsync(
                     chatId: _fixture.SupergroupChat.Id,
                     gameShortName: "my game"
                 )
             );
 
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("GAME_SHORTNAME_INVALID", exception.Message);
+            Assert.Equal("game_short_name", e.Parameter);
         }
 
-        [OrderedFact("Should throw ApiRequestException for empty name")]
+        [OrderedFact("Should throw InvalidGameShortNameException for empty name")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendGame)]
-        public async Task Should_Throw_ApiRequestException_When_GameShortName_Invalid_2()
+        public async Task Should_Throw_InvalidGameShortNameException_2()
         {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(async () =>
-                await BotClient.SendGameAsync(
+            InvalidGameShortNameException e = await Assert.ThrowsAsync<InvalidGameShortNameException>(() =>
+                BotClient.SendGameAsync(
                     chatId: _fixture.SupergroupChat.Id,
                     gameShortName: string.Empty
                 )
             );
 
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("game_short_name", exception.Message);
+            Assert.Equal("game_short_name", e.Parameter);
         }
 
-        [OrderedFact("Should throw ApiRequestException for non-existent game")]
+        [OrderedFact("Should throw InvalidGameShortNameException for non-existent game")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendGame)]
-        public async Task Should_Throw_ApiRequestException_When_GameShortName_Invalid_3()
+        public async Task Should_Throw_InvalidGameShortNameException_3()
         {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(async () =>
-                await BotClient.SendGameAsync(
+            InvalidGameShortNameException e = await Assert.ThrowsAsync<InvalidGameShortNameException>(() =>
+                BotClient.SendGameAsync(
                     chatId: _fixture.SupergroupChat.Id,
                     gameShortName: "non_existing_game"
                 )
             );
 
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("wrong game short name specified", exception.Message);
+            Assert.Equal("game_short_name", e.Parameter);
         }
 
-        [OrderedFact("Should throw ApiRequestException when a callback game button is not first")]
-        [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendGame)]
-        public async Task Should_Throw_ApiRequestException_When_Game_Button_Not_First()
-        {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(async () =>
-                await BotClient.SendGameAsync(
-                    chatId: _fixture.SupergroupChat.Id,
-                    gameShortName: "game1",
-                    replyMarkup: new InlineKeyboardMarkup(new []
-                    {
-                       new [] { InlineKeyboardButton.WithCallbackData("Should never be seen") },
-                       new [] { InlineKeyboardButton.WithCallBackGame("Should never be seen") }
-                    })
-                )
-            );
-
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("BUTTON_POS_INVALID", exception.Message);
-        }
-
-        [OrderedFact("Should throw ApiRequestException when an inline markup is empty")]
-        [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendGame)]
-        public async Task Should_Throw_ApiRequestException_When_Keyboard_Empty()
-        {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(async () =>
-                await BotClient.SendGameAsync(
-                    chatId: _fixture.SupergroupChat.Id,
-                    gameShortName: "game1",
-                    replyMarkup: new InlineKeyboardMarkup(
-                        InlineKeyboardButton.WithCallbackData("Should never be seen")
-                    )
-                )
-            );
-
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("REPLY_MARKUP_GAME_EMPTY", exception.Message);
-        }
+        // ToDo: Send game with markup & game button NOT as 1st: BUTTON_POS_INVALID
+        // ToDo: Send game with markup & w/o game button: REPLY_MARKUP_GAME_EMPTY
     }
 }

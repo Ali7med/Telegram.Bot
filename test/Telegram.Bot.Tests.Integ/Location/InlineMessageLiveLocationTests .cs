@@ -38,11 +38,7 @@ namespace Telegram.Bot.Tests.Integ.Locations
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
             string callbackQueryData = $"edit-location{new Random().Next(1_000)}";
-            Location newYork = new Location
-            {
-                Latitude = 40.7128f,
-                Longitude = -74.0060f
-            };
+            Location newYork = new Location {Latitude = 40.7128f, Longitude = -74.0060f};
 
             await BotClient.AnswerInlineQueryAsync(
                 inlineQueryId: iqUpdate.InlineQuery!.Id,

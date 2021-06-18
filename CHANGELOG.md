@@ -18,6 +18,144 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 
 -->
+<!-- markdownlint-configure-file { "MD024": false } -->
+
+## [Unreleased]
+
+> [Bot API 5.2](https://core.telegram.org/bots/api#april-26-2021) (April 26, 2021)
+
+### Added
+
+- Property `VoiceChatScheduled` to the class `Message`.
+- Types `VoiceChatScheduled`, `InputInvoiceMessageContent`
+- New `MessageType` value: `VoiceChatScheduled`
+- Property `ChatType` to the class `InlineQuery`.
+- New `ChatType` value: `Sender`
+- New `ChatAction` values: `RecordVoice`, `UploadVoice`
+- Optional parameters `maxTipAmount` and `suggestedTipAmounts` to `ITelegramBotClient.SendInvoiceAsync`
+- Properties `MaxTipAmount` and `SuggestedTipAmounts` to `SendInvoiceRequest`
+
+### Changed
+
+- Parameter order in `ITelegramBotClient.UnpinChatMessageAsync`
+- Parameter `startParameter` of the method `ITelegramBotClient.SendInvoiceAsync` became optional
+- `ChatAction` values `RecordAudio` and `UploadAudio` marked as obsolete
+- `ReplyToMessageId` and `AllowSendingWithoutReply` in `IReplyMessage`, `CopyMessageRequest`, `SendLocationRequest`, `SendAnimationRequest`, `SendAudioRequest`, `SendContactRequest`, `SendDiceRequest`, `SendDocumentRequest`, `SendMediaGroupRequest`, `SendMessageRequest`, `SendPhotoRequest`, `SendPollRequest`, `SendVenueRequest`, `SendVideoNoteRequest`, `SendVideoRequest`, `SendVoiceRequest`, `SendGameRequest`, `SendStickerRequest` marked as optional
+
+> ⚠️ WARNING! ⚠️
+> After the next Bot API update (Bot API 5.3) there will be a one-time change of the value of the field `FileUniqueId` in objects of the type `PhotoSize` and of the fields `SmallFileUniqueId` and `BigFileUniqueId` in objects of the type `ChatPhoto`.
+
+<!-- -->
+> ⚠️ WARNING! ⚠️
+> Service messages about non-bot users joining the chat will be soon removed from large groups. We recommend using the “chat_member” update as a replacement.
+
+<!-- -->
+> ⚠️ WARNING! ⚠️
+> After one of the upcoming Bot API updates, user identifiers will become bigger than 2^31 - 1 and it will be no longer possible to store them in a signed 32-bit integer type. User identifiers will have up to 52 significant bits, so a 64-bit integer or double-precision float type would still be safe for storing them. Please make sure that your code can correctly handle such user identifiers.
+
+### Fixed
+
+- Align property order and description with official docs
+
+### Removed
+
+- Parameter `startParameter` from `SendInvoiceRequest` constructor
+
+## [v16.0.0-alpha.1] - 2021-05-01
+
+> [Bot API 5.1](https://core.telegram.org/bots/api#march-9-2021) (March 9, 2021)
+
+> [Bot API 5.0](https://core.telegram.org/bots/api#november-4-2020) (November 4, 2020)
+
+### Added
+
+- The method `ITelegramBotClient.CreateChatInviteLinkAsync`
+- The method `ITelegramBotClient.EditChatInviteLinkAsync`
+- The method `ITelegramBotClient.RevokeChatInviteLinkAsync`
+- Optional parameter `revokeMessages` to `ITelegramBotClient.KickChatMemberAsync`
+- Optional parameters `canManageChat`, `canManageVoiceChats` to `ITelegramBotClient.KickChatMemberAsync`
+- Property `RevokeMessages` to `KickChatMemberRequest`
+- Properties `CanManageChat`, `CanManageVoiceChats` to `PromoteChatMemberRequest`
+- Properties `CanManageChat`, `CanManageVoiceChats` to `ChatMember`
+- Properties `MessageAutoDeleteTimerChanged`, `VoiceChatStarted`, `VoiceChatEnded`, `VoiceChatParticipantsInvited` to `Message`
+- Properties `MyChatMember` and `ChatMember` to `Update`
+- Types `CreateChatInviteLinkRequest`, `EditChatInviteLinkRequest`, `RevokeChatInviteLinkRequest`, `ChatInviteLink`, `ChatMemberUpdated`, `MessageAutoDeleteTimerChanged`, `VoiceChatEnded`, `VoiceChatParticipantsInvited`, `VoiceChatStarted`
+- New enum value `Bowling` for `Emoji`
+- New enum values `MessageAutoDeleteTimerChanged`, `ProximityAlertTriggered`, `VoiceChatStarted`, `VoiceChatEnded`, `VoiceChatParticipantsInvited` for `MessageType`
+- New enum values `MyChatMember`, `ChatMember` for `UpdateType`
+- Delegate `AsyncEventHandler<T>`
+- Methods:
+  - `ITelegramBotClient.LogOutAsync`
+  - `ITelegramBotClient.CloseAsync`
+  - `ITelegramBotClient.CopyMessageAsync`
+  - `ITelegramBotClient.UnpinAllChatMessages`
+- Optional parameter `ipAddress` to `ITelegramBotClient.SetWebhookAsync`
+- Optional parameter `dropPendingUpdates` to `ITelegramBotClient.SetWebhookAsync`, `ITelegramBotClient.DeleteWebhookAsync`
+- Optional parameter `allowSendingWithoutReply` to the methods `SendTextMessageAsync`, `SendPhotoAsync`, `SendVideoAsync`, `SendAnimationAsync`, `SendAudioAsync`, `SendDocumentAsync`, `SendStickerAsync`, `SendVideoNoteAsync`, `SendVoiceAsync`, `SendLocationAsync`, `SendVenueAsync`, `SendContactAsync`, `SendPollAsync`, `SendDiceAsync`, `SendInvoiceAsync`, `SendGameAsync`, `SendMediaGroupAsync`
+- Optional parameter `captionEntities` to `SendTextMessageAsync`, `SendPhotoAsync`, `SendVideoAsync`, `SendAnimationAsync`, `SendAudioAsync`, `SendDocumentAsync`, `SendVoiceAsync`, `SendPollAsync`, `EditMessageTextAsync`, `EditMessageCaptionAsync`
+- Optional parameter `isAnonymous` to `ITelegramBotClient.PromoteChatMemberAsync`
+- Optional parameter `messageId` to `ITelegramBotClient.UnpinChatMessageAsync`
+- Optional parameter `onlyIfBanned` to `ITelegramBotClient.UnbanChatMemberAsync`
+- Optional parameter `disableContentTypeDetection` to `ITelegramBotClient.SendDocumentAsync`
+- Optional parameter `heading` to `ITelegramBotClient.SendLocationAsync`, `ITelegramBotClient.EditMessageLiveLocationAsync`
+- Optional parameter `proximityAlertRadius` to `ITelegramBotClient.SendLocationAsync`, `ITelegramBotClient.EditMessageLiveLocationAsync`
+- Optional parameter `horizontalAccuracy` to `ITelegramBotClient.SendLocationAsync`, `ITelegramBotClient.EditMessageLiveLocationAsync`
+- Optional parameters `googlePlaceId`, `googlePlaceType` to `ITelegramBotClient.SendVenueAsync`
+- Property `IpAddress` to `SetWebhookRequest`, `WebhookInfo`
+- Property `DropPendingUpdates` to `SetWebhookRequest`, `DeleteWebhookRequest`
+- Property `AllowSendingWithoutReply` to `SendMessageRequest`, `SendPhotoRequest`, `SendAudioRequest`, `SendDocumentRequest`, `SendStickerRequest`, `SendVideoRequest`, `SendAnimationRequest`, `SendVoiceRequest`, `SendVideoNoteRequest`, `SendMediaGroupRequest`, `SendLocationRequest`, `SendVenueRequest`, `SendContactRequest`, `SendPollRequest`, `SendDiceRequest`, `SendInvoiceRequest`, `SendGameRequest`
+- Property `CaptionEntities` to `InputMediaBase`, `InlineQueryResultPhoto`, `InlineQueryResultGif`, `InlineQueryResultMpeg4Gif`, `InlineQueryResultVideo`, `InlineQueryResultAudio`, `InlineQueryResultVoice`, `InlineQueryResultDocument`, `InlineQueryResultCachedPhoto`, `InlineQueryResultCachedGif`, `InlineQueryResultCachedMpeg4Gif`, `InlineQueryResultCachedVideo`, `InlineQueryResultCachedAudio`, `InlineQueryResultCachedVoice`, `InlineQueryResultCachedDocument`
+- Property `Entities` to `InputTextMessageContent`
+- Properties `SenderChat`, `AuthorSignature`, `ProximityAlertTriggered` to `Message`
+- Properties `Bio`, `LinkedChatId`, `Location` to `Chat`
+- Property `IsAnonymous` to `ChatMember`, `PromoteChatMemberRequest`
+- Property `LivePeriod` to `Location`
+- Property `ProximityAlertRadius` to `Location`, `InlineQueryResultLocation`, `InputLocationMessageContent`, `SendLocationRequest`, `EditMessageLiveLocationRequest`, `EditInlineMessageLiveLocationRequest`
+- Property `HorizontalAccuracy` to `Location`, `InlineQueryResultLocation`, `InputLocationMessageContent`, `SendLocationRequest`, `EditMessageLiveLocationRequest`, `EditInlineMessageLiveLocationRequest`
+- Property `Heading` to `Location`, `InlineQueryResultLocation`, `SendLocationRequest`, `EditMessageLiveLocationRequest`, `EditInlineMessageLiveLocationRequest`
+- Property `MessageId` to `PinChatMessageRequest`
+- Property `OnlyIfBanned` to `UnbanChatMemberRequest`
+- Property `FileName` to `Audio`, `Video`
+- Property `DisableContentTypeDetection` to `MakeRequestAsync`, `InputMediaDocument`
+- Properties `GooglePlaceId`, `GooglePlaceType` to `SendVenueRequest`, `Venue`, `InlineQueryResultVenue`, `InputVenueMessageContent`
+- New enum values `Football`, `SlotMachine` for `Emoji`
+- Type `ChatLocation`
+- Type `ProximityAlertTriggered`
+- Support for sending and receiving audio and document albums in the method `SendMediaGroupAsync`
+
+### Changed
+
+- Constructor in `TelegramBotClient` accepts base url for custom Bot API server as optional third parameter, it accepts only URL's with protocol, host and port parts, everything else is ignored
+- Marked constructor for `TelegramBotClient` accepting `IWebProxy` as obsolete
+- Property `ITelegramBotClient.BotId` to `long?`
+- Event `MakingApiRequest` renamed to `OnMakingApiRequest` and it's type is changed to `AsyncEventHandler<ApiRequestEventArgs>`
+- Event `ApiResponseReceived` renamed to `OnApiResponseReceived` and it's type is changed to `AsyncEventHandler<ApiResponseEventArgs>`
+- Parameters order in following methods (to reflect [official docs](https://core.telegram.org/bots/api#available-methods)):
+  - `SetWebhookAsync`, `DeleteWebhookAsync`, `SendTextMessageAsync`, `SendPhotoAsync`, `SendAudioAsync`, `SendDocumentAsync`, `SendStickerAsync`, `SendVideoAsync`, `SendAnimationAsync`, `SendVoiceAsync`, `SendVideoNoteAsync`, `SendMediaGroupAsync`, `SendLocationAsync`, `SendVenueAsync`, `SendContactAsync`, `SendPollAsync`, `SendDiceAsync`, `KickChatMemberAsync`, `UnbanChatMemberAsync`, `PromoteChatMemberAsync`, `EditMessageTextAsync`, `EditMessageCaptionAsync`, `EditMessageLiveLocationAsync`, `SendInvoiceAsync`, `SendGameAsync`
+- Polling inside the library is now considered obsolete. The code, related to polling will be removed. It is recommended to use [Telegram.Bot.Extensions.Polling](https://github.com/TelegramBots/Telegram.Bot.Extensions.Polling) package instead.
+  - These methods are now obsolete: `StartReceiving`, `StopReceiving`
+  - These events are now obsolete: `OnUpdate`, `OnMessage`, `OnMessageEdited`, `OnInlineQuery`, `OnInlineResultChosen`, `OnCallbackQuery`, `OnReceiveError`, `OnReceiveGeneralError`
+  - These fields are now obsolete: `IsReceiving`, `MessageOffset`
+- Error `429 Too Many Request` is now handled by the client and is thrown as `ApiRequestException`
+
+>⚠️ WARNING! ⚠️
+>
+>After one of the upcoming Bot API updates, _some_ user identifiers will become bigger than 2^31 - 1 and it will be no longer possible to store them in a signed 32-bit integer type. User identifiers will have up to 52 significant bits, so a 64-bit integer or double-precision float type would still be safe for storing them. Please make sure that your code can correctly handle such user identifiers.
+
+### Fixed
+
+- Incorrect property name `ExplanationCaptionEntities` -> `ExplanationEntities` in `SendPollRequest`
+
+### Removed
+
+- Obsolete overload method `ITelegramBotClient.DownloadFileAsync`
+- Obsolete overload method `ITelegramBotClient.SendMediaGroupAsync`
+- Obsolete constructor for `SendMediaGroupRequest`
+- Obsolete constructor for `InputMediaPhoto`
+- Obsolete constructor for `InputMediaVideo`
+- Obsolete property `AllMembersAreAdministrators` from `Chat`
+- Obsolete property `IsForwarded` from `Message`
+- Obsolete value `Animation` from enum `MessageType`
 
 ## [Unreleased]
 
@@ -113,12 +251,14 @@ correct error response is received from Bot API, otherwise `RequestException` is
 ## [15.7.1] - 2020-06-18
 
 ### Added
+
 - Source Link support
 - Fully deterministic build
 
 ## [15.7.0] - 2020-06-13
 
 ### Added
+
 - Enum member `Emoji.Basketball`
 - Property `InlineQueryResultGif.ThumbMimeType`
 - Property `InlineQueryResultMpeg4Gif.ThumbMimeType`
@@ -127,6 +267,7 @@ correct error response is received from Bot API, otherwise `RequestException` is
 ## [15.6.0] - 2020-05-30
 
 ### Added
+
 - Enum `Emoji`
 - Property `Poll.Explanation`
 - Property `Poll.ExplanationEntities`
@@ -134,42 +275,45 @@ correct error response is received from Bot API, otherwise `RequestException` is
 - Property `Poll.CloseDate`
 - Property `Dice.Emoji`
 - Following optional properties to `SendPollRequest`:
-    - `Explanation`
-    - `ExplanationParseMode`
-    - `OpenPeriod`
-    - `CloseDate`
+  - `Explanation`
+  - `ExplanationParseMode`
+  - `OpenPeriod`
+  - `CloseDate`
 - Optional property `Emoji` to `SendDiceRequest`
 
 ### Changed
+
 - Following optional parameters to `ITelegramBotClient.SendPollAsync`:
-     - `explanation`
-     - `explanationParseMode`
-     - `openPeriod`
-     - `closeDate`
+  - `explanation`
+  - `explanationParseMode`
+  - `openPeriod`
+  - `closeDate`
 - Optional parameter `emoji` to `ITelegramBotClient.SendDiceAsync`
 
 ## [15.5.1] - 2020-04-02
 
 ### Fixed
+
 - Implementation of `ITelegramBotClient.CreateNewAnimatedStickerSetAsync`
 
 ## [15.5.0] - 2020-04-02
 
 ### Added
+
 - Requests
-    - `GetMyCommandsRequest`
-    - `SetMyCommandsRequest`
-    - `CreateNewAnimatedStickerSetRequest`
-    - `AddNewAnimatedStickerToSetRequest`
-    - `SendDiceRequest`
-    - `SetStickerSetThumbRequest`
+  - `GetMyCommandsRequest`
+  - `SetMyCommandsRequest`
+  - `CreateNewAnimatedStickerSetRequest`
+  - `AddNewAnimatedStickerToSetRequest`
+  - `SendDiceRequest`
+  - `SetStickerSetThumbRequest`
 - Methods:
-    - `ITelegramBotClient.SendDiceAsync`
-    - `ITelegramBotClient.CreateNewAnimatedStickerSetAsync`
-    - `ITelegramBotClient.AddNewAnimatedStickerToSetAsync`
-    - `ITelegramBotClient.SetStickerSetThumbAsync`
-    - `ITelegramBotClient.GetMyCommandsAsync`
-    - `ITelegramBotClient.SetMyCommandsAsync`
+  - `ITelegramBotClient.SendDiceAsync`
+  - `ITelegramBotClient.CreateNewAnimatedStickerSetAsync`
+  - `ITelegramBotClient.AddNewAnimatedStickerToSetAsync`
+  - `ITelegramBotClient.SetStickerSetThumbAsync`
+  - `ITelegramBotClient.GetMyCommandsAsync`
+  - `ITelegramBotClient.SetMyCommandsAsync`
 - Type `Dice`
 - Type `BotCommand`
 - Enum member `MessageType.Dice`
@@ -179,8 +323,9 @@ correct error response is received from Bot API, otherwise `RequestException` is
 ## [15.4.0] - 2020-02-22
 
 ### Added
+
 - Property `SendInvoiceRequest.SendPhoneNumberToProvider`
-- Property `SendInvoiceRequest.SendEmailToProvider `
+- Property `SendInvoiceRequest.SendEmailToProvider`
 - Optional parameter `sendPhoneNumberToProvider` to method `ITelegramBotClient.SendInvoiceAsync`
 - Optional parameter `sendEmailToProvider` to method `ITelegramBotClient.SendInvoiceAsync`
 
@@ -195,31 +340,31 @@ correct error response is received from Bot API, otherwise `RequestException` is
 - Enum `PollType`
 - Property `MessageEntity.Language`
 - Following properties to type `Poll`:
-    - `bool? IsAnonymous`
-    - `string Type`
-    - `bool? AllowsMultipleAnswers`
-    - `int? CorrectOptionId`
+  - `bool? IsAnonymous`
+  - `string Type`
+  - `bool? AllowsMultipleAnswers`
+  - `int? CorrectOptionId`
 - Following properties to type `SendPollRequest`:
-    - `bool? IsAnonymous`
-    - `string Type`
-    - `bool? AllowsMultipleAnswers`
-    - `int? CorrectOptionId`
-    - `bool? IsClosed`
+  - `bool? IsAnonymous`
+  - `string Type`
+  - `bool? AllowsMultipleAnswers`
+  - `int? CorrectOptionId`
+  - `bool? IsClosed`
 - Property `Update.PollAnswer`
 - Enum member `UpdateType.PollAnswer`
 - Following properties to type `User`:
-    - `bool? CanJoinGroups`
-    - `bool? CanReadAllGroupMessages`
-    - `bool? SupportsInlineQueries`
+  - `bool? CanJoinGroups`
+  - `bool? CanReadAllGroupMessages`
+  - `bool? SupportsInlineQueries`
 
 ### Changed
 
 - Method `ITelegramBotClient.SendPollAsync`, added following optional parameters:
-    - `bool? isAnonymous`
-    - `string type`
-    - `bool? allowsMultipleAnswers`
-    - `int? correctOptionId`
-    - `bool? isClosed`
+  - `bool? isAnonymous`
+  - `string type`
+  - `bool? allowsMultipleAnswers`
+  - `int? correctOptionId`
+  - `bool? isClosed`
 - Method `User.Equals` takes into account new properties
 
 ## [15.2.1] - 2020-01-23
@@ -231,6 +376,7 @@ correct error response is received from Bot API, otherwise `RequestException` is
 - Type `ContactRequestException` is made obsolete due to Telegram changed it's error message
 
 ### Fixed
+
 - A bug that prevented requests to be serialized when default `JsonSerializerSettings` were set
 
 ## [15.2.0] - 2020-01-03
@@ -449,7 +595,7 @@ correct error response is received from Bot API, otherwise `RequestException` is
 
 ### Fixed
 
-- Assigining param `foursquareId` of `SendInvoiceAsync` method to its request
+- Assigning param `foursquareId` of `SendInvoiceAsync` method to its request
 - Access modifier of abstract class `BadRequestException` and `ForbiddenException` ctors to `protected`
 
 ### Removed
@@ -623,7 +769,7 @@ correct error response is received from Bot API, otherwise `RequestException` is
   - Type `SendChatActionRequest`
   - Type `GetUserProfilePicturesRequest`
   - Type `KickChatMemberRequest`
-  - Type `UnbanChatmemberRequest`
+  - Type `UnbanChatMemberRequest`
   - Type `RestrictChatMemberRequest`
   - Type `PromoteChatMemberRequest`
   - Type `ExportChatInviteLinkRequest`
@@ -705,7 +851,7 @@ correct error response is received from Bot API, otherwise `RequestException` is
 - Reorder parameters of method `SendInvoiceAsync`
 - Divide `AnswerShippingQueryAsync` method into two overloads
 - Divide `AnswerPreCheckoutQueryAsync` method into two overloads
-- Method `CreateNewStickerSetAsnyc` renamed to `CreateNewStickerSetAsync`
+- Method `CreateNewStickerSetAsync` renamed to `CreateNewStickerSetAsync`
 - Method return type changed from `Task<bool>` to `Task`:
   - Method `DeleteWebhookAsync`
   - Method `KickChatMemberAsync`
@@ -887,11 +1033,11 @@ correct error response is received from Bot API, otherwise `RequestException` is
 
 - User and Chat Ids reverted to base types
 - DateTimes are now in local time zone
-- Splitedd Keyboardbuttons in `InlineKeyboardCallbackButton`, `InlineKeyboardCallbackGameButton`, `InlineKeyboardPayButton`, `InlineKeyboardSwitchCallbackQueryCurrentButton`, `InlineKeyboardSwitchInlineQueryButton` and `InlineKeyboardUrlButton`
+- Split Keyboard buttons to `InlineKeyboardCallbackButton`, `InlineKeyboardCallbackGameButton`, `InlineKeyboardPayButton`, `InlineKeyboardSwitchCallbackQueryCurrentButton`, `InlineKeyboardSwitchInlineQueryButton` and `InlineKeyboardUrlButton`
 
 ### Fixed
 
-- Inline messge editing
+- Inline message editing
 - InlineQueryResult* `ThumbHight` and `ThumbWidth`
 - Method `SetWebHookAsync` parameter `max_connections`
 - Method `SetGameStoreAsync`
@@ -917,12 +1063,12 @@ correct error response is received from Bot API, otherwise `RequestException` is
 - Type `PreCheckoutQuery`
 - Type `VideoNote`
 - Type `Message` properties `VideoNote`, `Invoice` and `SuccessfulPayment`
-- Type `User` poperty `LanguageCode`
+- Type `User` property `LanguageCode`
 - Type `Update` properties `ShippingQuery` and `PreCheckoutQuery`
-- Type `InlineQueryResultGif` porperty `Duration`
-- Type `InlineQueryResultMpeg4Gif` porperty `Duration`
-- Type `InlineeyboardButton` property `Pay`
-- Enum `ChatAction` members `RecordVideoNote` and `UplaodVideoNote`
+- Type `InlineQueryResultGif` property `Duration`
+- Type `InlineQueryResultMpeg4Gif` property `Duration`
+- Type `InlineKeyboardButton` property `Pay`
+- Enum `ChatAction` members `RecordVideoNote` and `UploadVideoNote`
 - Enum `UpdateType` members `ShippingQuery` and `PreCheckoutQuery`
 
 ### Changed
@@ -955,14 +1101,14 @@ correct error response is received from Bot API, otherwise `RequestException` is
   - Method `GetGameHighScoresAsync`
   - Method `AnswerCallbackQueryAsync` parameter `url`
   - Type `Animation`
-  - Type `CallBackGame`
-  - Type `CallBackquery` properties `ChatInstance`, `GameShortName`
+  - Type `CallbackGame`
+  - Type `CallbackQuery` properties `ChatInstance`, `GameShortName`
   - Type `GameHighScore`
-  - Type `InlineKeyboardButton` propertiy `CallbackGame`
+  - Type `InlineKeyboardButton` property `CallbackGame`
   - Type `InlineQueryResults`
   - Type `Message` property `Game`
   - Enum `InlineQueryResultType` member `Game`
-  - Enum `MesageType` member `Game`
+  - Enum `MessageType` member `Game`
 
 ### Changed
 

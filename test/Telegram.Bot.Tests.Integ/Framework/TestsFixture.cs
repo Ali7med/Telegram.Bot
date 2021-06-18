@@ -29,7 +29,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
         public Chat ChannelChat { get; set; }
 
-        public RunSummary RunSummary { get; } = new RunSummary();
+        public RunSummary RunSummary { get; } = new();
 
         public static TestsFixture Instance { get; private set; }
 
@@ -127,21 +127,18 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
         public async Task<Chat> GetChatFromAdminAsync()
         {
-            bool IsMatch(Update u) => u.Message?.Type == MessageType.Contact ||
-                                      u.Message?.ForwardFrom?.Id != null;
+            bool IsMatch(Update u) => u.Message.Type == MessageType.Contact ||
+                                      u.Message.ForwardFrom?.Id is not null;
 
-            var update = await UpdateReceiver.GetUpdateAsync(
-                predicate: IsMatch,
-                updateTypes: UpdateType.Message
-            );
+            var update = (await UpdateReceiver
+                .GetUpdatesAsync(IsMatch, updateTypes: UpdateType.Message))
+                .Single();
 
             await UpdateReceiver.DiscardNewUpdatesAsync();
 
-            int? userId = update.Message?.Type == MessageType.Contact
-                ? update.Message?.Contact?.UserId
-                : update.Message?.ForwardFrom?.Id;
-
-            if (userId is null) throw new InvalidOperationException("Can't find userId");
+            long userId = update.Message.Type == MessageType.Contact
+                ? update.Message.Contact.UserId
+                : update.Message.ForwardFrom.Id;
 
             return await BotClient.GetChatAsync(userId);
         }
@@ -153,7 +150,8 @@ namespace Telegram.Bot.Tests.Integ.Framework
             var httpClient = new HttpClient(retryHttpClientHandler);
             BotClient = new TelegramBotClient(apiToken, httpClient);
             BotUser = await BotClient.GetMeAsync(CancellationToken);
-            await BotClient.DeleteWebhookAsync(CancellationToken);
+            await BotClient.DeleteWebhookAsync(cancellationToken: CancellationToken);
+
             SupergroupChat = await FindSupergroupTestChatAsync();
             var allowedUserNames = await FindAllowedTesterUserNames();
             UpdateReceiver = new UpdateReceiver(BotClient, allowedUserNames);
@@ -169,8 +167,8 @@ namespace Telegram.Bot.Tests.Integ.Framework
             );
 
 #if DEBUG
-            BotClient.MakingApiRequest += OnMakingApiRequest;
-            BotClient.ApiResponseReceived += OnApiResponseReceived;
+            BotClient.OnMakingApiRequest += OnMakingApiRequest;
+            BotClient.OnApiResponseReceived += OnApiResponseReceived;
 #endif
         }
 
@@ -198,9 +196,13 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 ? (InlineKeyboardMarkup) InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Start inline query")
                 : default;
 
-            var task = BotClient.SendTextMessageAsync(chatId, text, ParseMode.Markdown,
+            var task = BotClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: text,
+                parseMode: ParseMode.Markdown,
                 replyMarkup: replyMarkup,
-                cancellationToken: CancellationToken);
+                cancellationToken: CancellationToken
+            );
             return task;
         }
 
@@ -225,18 +227,14 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 .Select(n => n.Trim())
                 .ToArray();
 
-            if (!allowedUserNames.Any())
-            {
-                // Assume all chat admins are allowed testers
-                ChatMember[] admins = await BotClient.GetChatAdministratorsAsync(
-                    SupergroupChat,
-                    CancellationToken
-                );
-                allowedUserNames = admins
-                    .Where(member => !member.User.IsBot)
-                    .Select(member => member.User.Username)
-                    .ToArray();
-            }
+            if (allowedUserNames.Any()) return allowedUserNames;
+
+            // Assume all chat admins are allowed testers
+            ChatMember[] admins = await BotClient.GetChatAdministratorsAsync(SupergroupChat, CancellationToken);
+            allowedUserNames = admins
+                .Where(member => !member.User.IsBot)
+                .Select(member => member.User.Username)
+                .ToArray();
 
             return allowedUserNames;
         }
@@ -246,7 +244,10 @@ namespace Telegram.Bot.Tests.Integ.Framework
 #pragma warning disable 219
         // ReSharper disable NotAccessedVariable
         // ReSharper disable RedundantAssignment
-        private void OnMakingApiRequest(object sender, ApiRequestEventArgs e)
+        private async ValueTask OnMakingApiRequest(
+            ITelegramBotClient botClient,
+            ApiRequestEventArgs e,
+            CancellationToken cancellationToken = default)
         {
             bool hasContent;
             string content;
@@ -258,17 +259,27 @@ namespace Telegram.Bot.Tests.Integ.Framework
             else if (e.HttpContent is MultipartFormDataContent multipartFormDataContent)
             {
                 hasContent = true;
-                multipartContent = multipartFormDataContent
-                    .Select(c => c is StringContent
-                        ? $"{c.Headers}\n{c.ReadAsStringAsync().Result}"
-                        : c.Headers.ToString()
-                    )
-                    .ToArray();
+                var stringifiedFormContent = new List<string>(multipartFormDataContent.Count());
+
+                foreach (var formContent in multipartFormDataContent)
+                {
+                    if (formContent is StringContent stringContent)
+                    {
+                        var stringifiedContent = await stringContent.ReadAsStringAsync();
+                        stringifiedFormContent.Add(stringifiedContent);
+                    }
+                    else
+                    {
+                        stringifiedFormContent.Add(formContent.Headers.ToString());
+                    }
+                }
+
+                multipartContent = stringifiedFormContent.ToArray();
             }
             else
             {
                 hasContent = true;
-                content = e.HttpContent.ReadAsStringAsync().Result;
+                content = await e.HttpContent.ReadAsStringAsync();
             }
 
             /* Debugging Hint: set breakpoints with conditions here in order to investigate the HTTP request values. */
@@ -276,7 +287,10 @@ namespace Telegram.Bot.Tests.Integ.Framework
         }
 
         // ReSharper disable UnusedVariable
-        private void OnApiResponseReceived(object sender, ApiResponseEventArgs e)
+        private async ValueTask OnApiResponseReceived(
+            ITelegramBotClient botClient,
+            ApiResponseEventArgs e,
+            CancellationToken cancellationToken = default)
         {
             string content = e.ResponseMessage.Content.ReadAsStringAsync().Result;
 

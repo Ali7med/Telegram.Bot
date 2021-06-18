@@ -11,7 +11,10 @@ namespace Telegram.Bot.Requests
     /// Send phone contacts
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SendContactRequest : RequestBase<Message>, IChatTargetable
+    public class SendContactRequest : RequestBase<Message>,
+                                      INotifiableMessage,
+                                      IReplyMessage,
+                                      IReplyMarkupMessage<IReplyMarkup>
     {
         /// <summary>
         /// Unique identifier for the target chat or username of the target channel
@@ -35,39 +38,34 @@ namespace Telegram.Bot.Requests
         /// Contact's last name
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? LastName { get; set; }
+        public string LastName { get; set; }
 
         /// <summary>
         /// Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Vcard { get; set; }
+        public string Vcard { get; set; }
 
-        /// <summary>
-        /// Sends the message silently. Users will receive a notification with no sound.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableNotification { get; set; }
+        public bool DisableNotification { get; set; }
 
-        /// <summary>
-        /// If the message is a reply, ID of the original message.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? ReplyToMessageId { get; set; }
 
-        /// <summary>
-        /// A JSON-serialized object for a custom reply keyboard,
-        /// instructions to hide keyboard or to force a reply from the user.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IReplyMarkup? ReplyMarkup { get; set; }
+        public bool? AllowSendingWithoutReply { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IReplyMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with chatId, contacts's phone number and first name
         /// </summary>
-        /// <param name="chatId">
-        /// Unique identifier for the target chat or username of the target channel
-        /// </param>
+        /// <param name="chatId">Unique identifier for the target chat or username of the target channel</param>
         /// <param name="phoneNumber">Contact's phone number</param>
         /// <param name="firstName">Contact's first name</param>
         public SendContactRequest(ChatId chatId, string phoneNumber, string firstName)

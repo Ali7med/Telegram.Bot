@@ -1,31 +1,29 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can
-    /// use <see cref="InputMessageContent"/> to send a message with the specified content instead
-    /// of the venue.
+    /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use <see cref="InputMessageContent"/> to send a message with the specified content instead of the venue.
     /// </summary>
     /// <remarks>
-    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will
-    /// ignore them.
+    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultVenue : InlineQueryResultBase
+    public class InlineQueryResultVenue : InlineQueryResultBase,
+        IThumbnailInlineQueryResult,
+        ITitleInlineQueryResult,
+        IInputMessageContentResult,
+        ILocationInlineQueryResult
     {
-        /// <summary>
-        /// Latitude of the location in degrees
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public double Latitude { get; set; }
+        public float Latitude { get; set; }
 
-        /// <summary>
-        /// Longitude of the location in degrees
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public double Longitude { get; set; }
+        public float Longitude { get; set; }
 
         /// <summary>
         /// Address of the venue
@@ -33,9 +31,7 @@ namespace Telegram.Bot.Types.InlineQueryResults
         [JsonProperty(Required = Required.Always)]
         public string Address { get; set; }
 
-        /// <summary>
-        /// Title of the result
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string Title { get; set; }
 
@@ -43,42 +39,45 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Optional. Foursquare identifier of the venue if known
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareId { get; set; }
+        public string FoursquareId { get; set; }
 
         /// <summary>
         /// Optional. Foursquare type of the venue. (For example, "arts_entertainment/default",
         /// "arts_entertainment/aquarium" or "food/icecream".)
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareType { get; set; }
+        public string FoursquareType { get; set; }
 
         /// <summary>
-        /// URL of the static thumbnail for the result.
+        /// Google Places identifier of the venue
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? ThumbUrl { get; set; }
+        public string GooglePlaceId { get; set; }
 
         /// <summary>
-        /// Thumbnail width.
+        /// Google Places type of the venue.
+        /// <see href="https://developers.google.com/places/web-service/supported_types"/>
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? ThumbWidth { get; set; }
+        public string GooglePlaceType { get; set; }
 
-        /// <summary>
-        /// Thumbnail height.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? ThumbHeight { get; set; }
+        public string ThumbUrl { get; set; }
 
-        /// <summary>
-        /// Content of the message to be sent
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public int ThumbWidth { get; set; }
 
-#pragma warning disable 8618
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int ThumbHeight { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InputMessageContentBase InputMessageContent { get; set; }
+
         private InlineQueryResultVenue()
-#pragma warning restore 8618
             : base(InlineQueryResultType.Venue)
         {
         }
@@ -93,8 +92,8 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// <param name="address">Address of the venue</param>
         public InlineQueryResultVenue(
             string id,
-            double latitude,
-            double longitude,
+            float latitude,
+            float longitude,
             string title,
             string address)
             : base(InlineQueryResultType.Venue, id)

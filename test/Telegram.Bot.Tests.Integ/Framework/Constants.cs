@@ -30,6 +30,12 @@ namespace Telegram.Bot.Tests.Integ.Framework
         public const string InteractiveCategoryValue = "Interactive";
         public const string MethodTraitName = "Method";
 
+        public const string TestCollectionOrderer =
+            AssemblyName + "." + nameof(Framework) + "." + nameof(TestCollectionOrderer);
+
+        public const string TestFramework =
+            AssemblyName + "." + nameof(Framework) + "." + nameof(XunitExtensions) + "." + nameof(XunitTestFrameworkWithAssemblyFixture);
+
         public static class TestCollections
         {
             public const string GettingUpdates = "Getting Updates";
@@ -37,6 +43,8 @@ namespace Telegram.Bot.Tests.Integ.Framework
             public const string Webhook = "Webhook";
 
             public const string SendTextMessage = "Sending Text Messages";
+
+            public const string SendCopyMessage = "Sending Copy of Messages";
 
             public const string SendPhotoMessage = "Sending Photo Messages";
 
@@ -320,6 +328,10 @@ namespace Telegram.Bot.Tests.Integ.Framework
             public const string GetMyCommands = "getMyCommands";
 
             public const string SendDice = "sendDice";
+
+            public const string CopyMessage = "copyMessage";
+
+            public const string UnpinAllChatMessages = "unpinAllChatMessages";
         }
     }
 }

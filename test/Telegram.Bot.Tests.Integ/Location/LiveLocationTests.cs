@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot.Tests.Integ.Framework;
@@ -36,19 +35,19 @@ namespace Telegram.Bot.Tests.Integ.Locations
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendLocation)]
         public async Task Should_Send_Live_Location()
         {
-            double latitudeBerlin = 52.5200f;
-            double longitudeBerlin = 13.4050f;
+            const float latBerlin = 52.5200f;
+            const float lonBerlin = 13.4050f;
 
             Message message = await BotClient.SendLocationAsync(
                 chatId: _fixture.SupergroupChat.Id,
-                latitude: latitudeBerlin,
-                longitude: longitudeBerlin,
+                latitude: latBerlin,
+                longitude: lonBerlin,
                 livePeriod: 60
             );
 
             Assert.Equal(MessageType.Location, message.Type);
-            Assert.Equal(latitudeBerlin, message.Location!.Latitude, 3);
-            Assert.Equal(longitudeBerlin, message.Location.Longitude, 3);
+            Assert.Equal(latBerlin, message.Location.Latitude, 3);
+            Assert.Equal(lonBerlin, message.Location.Longitude, 3);
 
             LocationMessage = message;
         }
@@ -66,10 +65,10 @@ namespace Telegram.Bot.Tests.Integ.Locations
             Message editedMessage = default;
             foreach (Location newLocation in locations)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1.5));
+                await Task.Delay(1_500);
 
                 editedMessage = await BotClient.EditMessageLiveLocationAsync(
-                    chatId: LocationMessage.Chat!.Id,
+                    chatId: LocationMessage.Chat.Id,
                     messageId: LocationMessage.MessageId,
                     latitude: newLocation.Latitude,
                     longitude: newLocation.Longitude
@@ -77,7 +76,7 @@ namespace Telegram.Bot.Tests.Integ.Locations
 
                 Assert.Equal(MessageType.Location, editedMessage.Type);
                 Assert.Equal(LocationMessage.MessageId, editedMessage.MessageId);
-                Assert.Equal(newLocation.Latitude, editedMessage.Location!.Latitude, 3);
+                Assert.Equal(newLocation.Latitude, editedMessage.Location.Latitude, 3);
                 Assert.Equal(newLocation.Longitude, editedMessage.Location.Longitude, 3);
             }
 
@@ -89,16 +88,16 @@ namespace Telegram.Bot.Tests.Integ.Locations
         public async Task Should_Stop_Live_Location()
         {
             Message message = await BotClient.StopMessageLiveLocationAsync(
-                chatId: LocationMessage.Chat!,
+                chatId: LocationMessage.Chat,
                 messageId: LocationMessage.MessageId
             );
 
-            LocationMessage.Date = message.Date;
-            LocationMessage.EditDate = message.EditDate;
-            Assert.True(JToken.DeepEquals(
-                JToken.FromObject(LocationMessage),
-                JToken.FromObject(message)
-            ));
+            Assert.Equal(LocationMessage.MessageId, message.MessageId);
+            Assert.Equal(LocationMessage.Chat.Id, message.Chat.Id);
+            Assert.Equal(LocationMessage.From.Id, message.From.Id);
+            Assert.Equal(LocationMessage.Location.Longitude, message.Location.Longitude);
+            Assert.Equal(LocationMessage.Location.Latitude, message.Location.Latitude);
+            Assert.Equal(LocationMessage.Location.Longitude, message.Location.Longitude);
         }
     }
 }

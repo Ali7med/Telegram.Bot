@@ -1,17 +1,18 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents a link to an mp3 audio file stored on the Telegram servers. By default, this
-    /// audio file will be sent by the user. Alternatively, you can use
-    /// <see cref="InputMessageContent"/> to send a message with the specified content instead
-    /// of the audio.
+    /// Represents a link to an mp3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultAudio : InlineQueryResultBase
+    public class InlineQueryResultAudio : InlineQueryResultBase,
+        ICaptionInlineQueryResult,
+        ITitleInlineQueryResult,
+        IInputMessageContentResult
     {
         /// <summary>
         /// A valid URL for the audio file
@@ -23,42 +24,35 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Optional. Performer
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Performer { get; set; }
+        public string Performer { get; set; }
 
         /// <summary>
         /// Optional. Audio duration in seconds
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? AudioDuration { get; set; }
+        public int AudioDuration { get; set; }
 
-        /// <summary>
-        /// Caption of the result to be sent, 0-1024 characters.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
-        /// <summary>
-        /// Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width
-        /// text or inline URLs in the media caption.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
 
-        /// <summary>
-        /// Title of the result
-        /// </summary>
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public MessageEntity[] CaptionEntities { get; set; }
+
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string Title { get; set; }
 
-        /// <summary>
-        /// Content of the message to be sent
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public InputMessageContentBase InputMessageContent { get; set; }
 
-#pragma warning disable 8618
         private InlineQueryResultAudio()
-#pragma warning restore 8618
             : base(InlineQueryResultType.Audio)
         {
         }

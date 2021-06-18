@@ -1,21 +1,21 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents a link to a voice recording in an .ogg container encoded with OPUS. By default,
-    /// this voice recording will be sent by the user. Alternatively, you can use
-    /// <see cref="InputMessageContent"/> to send a message with the specified content instead of
-    /// the voice message.
+    /// Represents a link to a voice recording in an .ogg container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use <see cref="InputMessageContent"/> to send a message with the specified content instead of the voice message.
     /// </summary>
     /// <remarks>
-    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will
-    /// ignore them.
+    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultVoice : InlineQueryResultBase
+    public class InlineQueryResultVoice : InlineQueryResultBase,
+        ICaptionInlineQueryResult,
+        ITitleInlineQueryResult,
+        IInputMessageContentResult
     {
         /// <summary>
         /// A valid URL for the voice recording
@@ -23,9 +23,7 @@ namespace Telegram.Bot.Types.InlineQueryResults
         [JsonProperty(Required = Required.Always)]
         public string VoiceUrl { get; set; }
 
-        /// <summary>
-        /// Title of the result
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string Title { get; set; }
 
@@ -35,31 +33,26 @@ namespace Telegram.Bot.Types.InlineQueryResults
         [JsonProperty(Required = Required.Always)]
         public int VoiceDuration { get; set; }
 
-        /// <summary>
-        /// Caption of the result to be sent, 0-1024 characters.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
-        /// <summary>
-        /// Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width
-        /// text or inline URLs in the media caption.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
 
-        /// <summary>
-        /// Content of the message to be sent
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public MessageEntity[] CaptionEntities { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InputMessageContentBase InputMessageContent { get; set; }
 
         /// <summary>
         /// Initializes a new inline query result
         /// </summary>
-#pragma warning disable 8618
-        private InlineQueryResultVoice()
-#pragma warning restore 8618
+        public InlineQueryResultVoice()
             : base(InlineQueryResultType.Voice)
         { }
 

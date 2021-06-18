@@ -1,17 +1,18 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults.Abstractions;
 
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents a link to an animated GIF file stored on the Telegram servers. By default, this
-    /// animated GIF file will be sent by the user with an optional caption. Alternatively, you
-    /// can use <see cref="InputMessageContent"/> to send a message with specified content
-    /// instead of the animation.
+    /// Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class InlineQueryResultCachedGif : InlineQueryResultBase
+    public class InlineQueryResultCachedGif : InlineQueryResultBase,
+                                              ICaptionInlineQueryResult,
+                                              ITitleInlineQueryResult,
+                                              IInputMessageContentResult
     {
         /// <summary>
         /// A valid file identifier for the GIF file
@@ -19,34 +20,27 @@ namespace Telegram.Bot.Types.InlineQueryResults
         [JsonProperty(Required = Required.Always)]
         public string GifFileId { get; set; }
 
-        /// <summary>
-        /// Caption of the result to be sent, 0-1024 characters.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
-        /// <summary>
-        /// Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width
-        /// text or inline URLs in the media caption.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
 
-        /// <summary>
-        /// Title of the result
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Title { get; set; }
+        public MessageEntity[] CaptionEntities { get; set; }
 
-        /// <summary>
-        /// Content of the message to be sent
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMessageContentBase? InputMessageContent { get; set; }
+        public string Title { get; set; }
 
-#pragma warning disable 8618
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InputMessageContentBase InputMessageContent { get; set; }
+
         private InlineQueryResultCachedGif()
-#pragma warning restore 8618
             : base(InlineQueryResultType.Gif)
         { }
 

@@ -38,15 +38,13 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
 
             Update inlineQUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
+            const string originalMessagePrefix = "original\n";
             (MessageEntityType Type, string Value)[] entityValueMappings =
             {
                 (MessageEntityType.Bold, "<b>bold</b>"),
                 (MessageEntityType.Italic, "<i>italic</i>"),
             };
-            string originalMessagePrefix = "original\n";
-            string messageText = originalMessagePrefix +
-                                 string.Join("\n", entityValueMappings.Select(tuple => tuple.Value));
-
+            string messageText = $"{originalMessagePrefix}{string.Join("\n", entityValueMappings.Select(tuple => tuple.Value))}";
             string data = $"change-text{new Random().Next(2_000)}";
 
             InlineQueryResultBase[] inlineQueryResults =
@@ -54,7 +52,8 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 new InlineQueryResultArticle(
                     id: "bot-api",
                     title: "Telegram Bot API",
-                    inputMessageContent: new InputTextMessageContent(messageText: messageText)
+                    inputMessageContent:
+                    new InputTextMessageContent(messageText)
                     {
                         ParseMode = ParseMode.Html
                     }
@@ -64,19 +63,18 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 }
             };
 
-            await BotClient.AnswerInlineQueryAsync(inlineQUpdate.InlineQuery!.Id, inlineQueryResults, 0);
+            await BotClient.AnswerInlineQueryAsync(inlineQUpdate.InlineQuery.Id, inlineQueryResults, 0);
 
             #endregion
 
             Update callbackQUpdate = await _fixture.UpdateReceiver
                 .GetCallbackQueryUpdateAsync(data: data);
 
-            string modifiedMessagePrefix = "✌ modified 👌\n";
-            messageText = modifiedMessagePrefix +
-                          string.Join("\n", entityValueMappings.Select(tuple => tuple.Value));
+            const string modifiedMessagePrefix = "✌ modified 👌\n";
+            messageText = $"{modifiedMessagePrefix}{string.Join("\n", entityValueMappings.Select(tuple => tuple.Value))}";
 
             await BotClient.EditMessageTextAsync(
-                inlineMessageId: callbackQUpdate.CallbackQuery!.InlineMessageId!,
+                inlineMessageId: callbackQUpdate.CallbackQuery.InlineMessageId,
                 text: messageText,
                 parseMode: ParseMode.Html
             );
@@ -96,19 +94,14 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
 
             Update inlineQUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string data = $"change-me{new Random().Next(2_000)}";
-
-            InlineKeyboardMarkup initialMarkup = new InlineKeyboardMarkup(new []
+            string data = "change-me" + new Random().Next(2_000);
+            InlineKeyboardMarkup initialMarkup = new InlineKeyboardMarkup(new[]
             {
-                InlineKeyboardButton.WithCallbackData(
-                    text: "Click here to change this button",
-                    callbackData: data
-                )
+                InlineKeyboardButton.WithCallbackData("Click here to change this button", data)
             });
 
-            InputMessageContentBase inputMessageContent = new InputTextMessageContent(
-                "https://core.telegram.org/bots/api"
-            );
+            InputMessageContentBase inputMessageContent =
+                new InputTextMessageContent("https://core.telegram.org/bots/api");
 
             InlineQueryResultBase[] inlineQueryResults =
             {
@@ -122,11 +115,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 },
             };
 
-            await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: inlineQUpdate.InlineQuery!.Id,
-                results: inlineQueryResults,
-                cacheTime: 0
-            );
+            await BotClient.AnswerInlineQueryAsync(inlineQUpdate.InlineQuery.Id, inlineQueryResults, 0);
 
             #endregion
 
@@ -134,7 +123,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 .GetCallbackQueryUpdateAsync(data: data);
 
             await BotClient.EditMessageReplyMarkupAsync(
-                inlineMessageId: callbackQUpdate.CallbackQuery!.InlineMessageId!,
+                inlineMessageId: callbackQUpdate.CallbackQuery.InlineMessageId,
                 replyMarkup: "✌ Edited 👌"
             );
         }
@@ -153,16 +142,12 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
 
             Update inlineQUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string data = $"change-me{new Random().Next(2_000)}";
-
-            InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup(new []
+            string data = "change-me" + new Random().Next(2_000);
+            InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup(new[]
             {
-                InlineKeyboardButton.WithCallbackData(
-                    text: "Click here to change caption",
-                    callbackData: data
-                )
+                InlineKeyboardButton.WithCallbackData("Click here to change caption", data)
             });
-            string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
+            const string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
 
             InlineQueryResultBase[] inlineQueryResults =
             {
@@ -176,10 +161,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 }
             };
 
-            await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: inlineQUpdate.InlineQuery!.Id,
-                results: inlineQueryResults, cacheTime: 0
-            );
+            await BotClient.AnswerInlineQueryAsync(inlineQUpdate.InlineQuery.Id, inlineQueryResults, 0);
 
             #endregion
 
@@ -187,7 +169,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 .GetCallbackQueryUpdateAsync(data: data);
 
             await BotClient.EditMessageCaptionAsync(
-                inlineMessageId: callbackQUpdate.CallbackQuery!.InlineMessageId!,
+                inlineMessageId: callbackQUpdate.CallbackQuery.InlineMessageId,
                 caption: "_Caption is edited_ 👌",
                 parseMode: ParseMode.Markdown
             );

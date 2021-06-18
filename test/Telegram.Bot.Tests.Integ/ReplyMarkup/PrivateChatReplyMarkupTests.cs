@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot.Tests.Integ.Framework;
 using Telegram.Bot.Tests.Integ.Framework.Fixtures;
@@ -34,7 +35,7 @@ namespace Telegram.Bot.Tests.Integ.ReplyMarkup
                 chatId: _classFixture.PrivateChat,
                 text: "Share your contact info using the keyboard reply markup provided.",
                 replyMarkup: new ReplyKeyboardMarkup(
-                    keyboardRow: new [] { KeyboardButton.WithRequestContact(text: "Share Contact") },
+                    keyboardRow: new[] {KeyboardButton.WithRequestContact("Share Contact"),},
                     resizeKeyboard: true,
                     oneTimeKeyboard: true
                 )
@@ -42,16 +43,9 @@ namespace Telegram.Bot.Tests.Integ.ReplyMarkup
 
             Message contactMessage = await GetMessageFromChat(MessageType.Contact);
 
-            Assert.NotEmpty(contactMessage.Contact!.FirstName);
+            Assert.NotEmpty(contactMessage.Contact.FirstName);
             Assert.NotEmpty(contactMessage.Contact.PhoneNumber);
-
-            if (contactMessage.Contact.UserId != null)
-            {
-                Assert.Equal(
-                    _classFixture.PrivateChat.Id,
-                    contactMessage.Contact.UserId.Value
-                );
-            }
+            Assert.Equal(_classFixture.PrivateChat.Id, contactMessage.Contact.UserId);
 
             await BotClient.SendTextMessageAsync(
                 chatId: _classFixture.PrivateChat,
@@ -67,9 +61,7 @@ namespace Telegram.Bot.Tests.Integ.ReplyMarkup
             await BotClient.SendTextMessageAsync(
                 chatId: _classFixture.PrivateChat,
                 text: "Share your location using the keyboard reply markup",
-                replyMarkup: new ReplyKeyboardMarkup(
-                    KeyboardButton.WithRequestLocation(text: "Share Location")
-                )
+                replyMarkup: new ReplyKeyboardMarkup(KeyboardButton.WithRequestLocation("Share Location"))
             );
 
             Message locationMessage = await GetMessageFromChat(MessageType.Location);
@@ -84,11 +76,11 @@ namespace Telegram.Bot.Tests.Integ.ReplyMarkup
         }
 
         private async Task<Message> GetMessageFromChat(MessageType messageType) =>
-            (await _fixture.UpdateReceiver.GetUpdateAsync(
-                predicate: u => u.Message!.Type == messageType &&
-                                u.Message.Chat!.Id == _classFixture.PrivateChat.Id,
+            (await _fixture.UpdateReceiver.GetUpdatesAsync(
+                predicate: u => u.Message.Type == messageType &&
+                                u.Message.Chat.Id == _classFixture.PrivateChat.Id,
                 updateTypes: UpdateType.Message
-            )).Message;
+            )).Single().Message;
 
         public class Fixture : PrivateChatFixture
         {

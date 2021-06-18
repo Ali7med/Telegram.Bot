@@ -16,8 +16,8 @@ namespace Telegram.Bot.Helpers
     /// </summary>
     internal static class Extensions
     {
-        private static string EncodeUtf8(this string value) =>
-            string.Join(string.Empty, Encoding.UTF8.GetBytes(value).Select(Convert.ToChar));
+        internal static string EncodeUtf8(this string value) =>
+            new String(Encoding.UTF8.GetBytes(value).Select(c => Convert.ToChar(c)).ToArray());
 
         internal static void AddStreamContent(
             this MultipartFormDataContent multipartContent,

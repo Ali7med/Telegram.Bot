@@ -4,8 +4,7 @@ using Newtonsoft.Json.Serialization;
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents the content of a <see cref="Venue"/> message to be sent as the result of an
-    /// <see cref="InlineQuery"/>.
+    /// Represents the content of a <see cref="Venue"/> message to be sent as the result of an <see cref="InlineQuery"/>.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public class InputVenueMessageContent : InputMessageContentBase
@@ -14,13 +13,13 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Latitude of the location in degrees
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Latitude { get; private set; }
+        public float Latitude { get; private set; }
 
         /// <summary>
         /// Longitude of the location in degrees
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Longitude { get; private set; }
+        public float Longitude { get; private set; }
 
         /// <summary>
         /// Name of the venue
@@ -38,19 +37,30 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Optional. Foursquare identifier of the venue, if known
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareId { get; set; }
+        public string FoursquareId { get; set; }
 
         /// <summary>
-        /// Optional. Foursquare type of the venue. (For example, “arts_entertainment/default”,
-        /// “arts_entertainment/aquarium” or “food/icecream”.)
+        /// Optional. Foursquare type of the venue. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareType { get; set; }
+        public string FoursquareType { get; set; }
 
-#pragma warning disable 8618
+        /// <summary>
+        /// Google Places identifier of the venue
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string GooglePlaceId { get; set; }
+
+        /// <summary>
+        /// Google Places type of the venue.
+        /// <see href="https://developers.google.com/places/web-service/supported_types"/>
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string GooglePlaceType { get; set; }
+
         private InputVenueMessageContent()
-#pragma warning restore 8618
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new inline query result
@@ -59,11 +69,7 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// <param name="address">The address of the venue</param>
         /// <param name="latitude">The latitude of the venue</param>
         /// <param name="longitude">The longitude of the venue</param>
-        public InputVenueMessageContent(
-            string title,
-            string address,
-            double latitude,
-            double longitude)
+        public InputVenueMessageContent(string title, string address, float latitude, float longitude)
         {
             Title = title;
             Address = address;

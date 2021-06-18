@@ -7,9 +7,9 @@ using Xunit.Sdk;
 namespace Telegram.Bot.Tests.Integ.Framework
 {
     /// <summary>
-    /// Attribute that is applied to a test method. Test methods in a collection will be executed in
-    /// order based on their line number. By defalut, test cases will rerun once if test method
-    /// throws a <see cref="TaskCanceledException"/>.
+    /// Attribute that is applied to a test method. Test methods in a collection will be executed in order based on
+    /// their line number. By default, test cases will rerun once if test method throws
+    /// a <see cref="TaskCanceledException"/>.
     /// </summary>
     [XunitTestCaseDiscoverer(Constants.TestCaseDiscoverer, Constants.AssemblyName)]
     public class OrderedFactAttribute : FactAttribute
@@ -76,15 +76,16 @@ namespace Telegram.Bot.Tests.Integ.Framework
         private Type _exceptionType;
 
         /// <summary>
-        /// Initializes an instance of <see cref="OrderedFactAttribute"/> with 1 retry attempt and
-        /// delay of 30 seconds if a <see cref="TaskCanceledException"/> is thrown.
+        /// Initializes an instance of <see cref="OrderedFactAttribute"/> with 1 retry attempt and delay of 30 seconds if a <see cref="TaskCanceledException"/> is thrown.
         /// </summary>
         /// <param name="description">Description of test case.</param>
         /// <param name="line">Line number in source file.</param>
         public OrderedFactAttribute(string description, [CallerLineNumber] int line = default)
         {
             if (line < 1)
+            {
                 throw new ArgumentOutOfRangeException(nameof(line));
+            }
 
             if (!string.IsNullOrWhiteSpace(description))
             {

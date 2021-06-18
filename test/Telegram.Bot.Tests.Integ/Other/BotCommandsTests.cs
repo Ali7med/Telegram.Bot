@@ -10,7 +10,6 @@ namespace Telegram.Bot.Tests.Integ.Other
     public class BotCommandsTests : IClassFixture<BotCommandsFixture>
     {
         private readonly BotCommandsFixture _fixture;
-        private ITelegramBotClient BotClient => _fixture.TestsFixture.BotClient;
 
         public BotCommandsTests(BotCommandsFixture fixture)
         {
@@ -21,7 +20,7 @@ namespace Telegram.Bot.Tests.Integ.Other
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SetMyCommands)]
         public async Task Should_Set_New_Bot_Command_List()
         {
-            _fixture.NewBotCommands = new []
+            _fixture.NewBotCommands = new[]
             {
                 new BotCommand
                 {
@@ -35,14 +34,14 @@ namespace Telegram.Bot.Tests.Integ.Other
                 },
             };
 
-            await BotClient.SetMyCommandsAsync(commands: _fixture.NewBotCommands);
+            await _fixture.BotClient.SetMyCommandsAsync(_fixture.NewBotCommands);
         }
 
         [OrderedFact("Should get previously set bot command list")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.GetMyCommands)]
         public async Task Should_Get_Set_Bot_Commands()
         {
-            BotCommand[] currentCommands = await BotClient.GetMyCommandsAsync();
+            BotCommand[] currentCommands = await _fixture.BotClient.GetMyCommandsAsync();
 
             Assert.Equal(2, currentCommands.Length);
             Asserts.JsonEquals(_fixture.NewBotCommands, currentCommands);

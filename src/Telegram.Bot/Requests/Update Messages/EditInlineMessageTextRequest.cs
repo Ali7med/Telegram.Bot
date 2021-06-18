@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Telegram.Bot.Requests.Abstractions;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -7,15 +10,16 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Telegram.Bot.Requests
 {
     /// <summary>
-    /// Edit text and game messages sent via the bot (for inline bots). On success <c>true</c>
-    /// is returned.
+    /// Edit text and game messages sent via the bot (for inline bots). On success True is returned.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class EditInlineMessageTextRequest : RequestBase<bool>
+    public class EditInlineMessageTextRequest : RequestBase<bool>,
+                                                IFormattableMessage,
+                                                IInlineMessage,
+                                                IInlineReplyMarkupMessage,
+                                                IEntities
     {
-        /// <summary>
-        /// Identifier of the inline message
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string InlineMessageId { get; }
 
@@ -25,24 +29,23 @@ namespace Telegram.Bot.Requests
         [JsonProperty(Required = Required.Always)]
         public string Text { get; }
 
-        /// <summary>
-        /// Change, if you want Telegram apps to show bold, italic, fixed-width text or inline
-        /// URLs in your bot's message
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode ParseMode { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IEnumerable<MessageEntity> Entities { get; set; }
 
         /// <summary>
         /// Disables link previews for links in this message
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableWebPagePreview { get; set; }
+        public bool DisableWebPagePreview { get; set; }
 
-        /// <summary>
-        /// A JSON-serialized object for an inline keyboard
-        /// </summary>
+        /// <inheritdoc cref="IInlineReplyMarkupMessage.ReplyMarkup" />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InlineKeyboardMarkup? ReplyMarkup { get; set; }
+        public InlineKeyboardMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with inlineMessageId and new text

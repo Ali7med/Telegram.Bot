@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
@@ -11,7 +11,10 @@ namespace Telegram.Bot.Requests
     /// Send a game. On success, the sent <see cref="Message"/> is returned.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SendGameRequest : RequestBase<Message>, IChatTargetable
+    public class SendGameRequest : RequestBase<Message>,
+                                   INotifiableMessage,
+                                   IReplyMessage,
+                                   IInlineReplyMarkupMessage
     {
         /// <summary>
         /// Unique identifier for the target chat
@@ -25,35 +28,27 @@ namespace Telegram.Bot.Requests
         [JsonProperty(Required = Required.Always)]
         public string GameShortName { get; }
 
-        /// <summary>
-        /// Sends the message silently. Users will receive a notification with no sound.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableNotification { get; set; }
+        public bool DisableNotification { get; set; }
 
-        /// <summary>
-        /// If the message is a reply, ID of the original message.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? ReplyToMessageId { get; set; }
 
-        /// <summary>
-        /// A JSON-serialized object for a custom reply keyboard,
-        /// instructions to hide keyboard or to force a reply from the user.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InlineKeyboardMarkup? ReplyMarkup { get; set; }
+        public bool? AllowSendingWithoutReply { get; set; }
 
-        [JsonIgnore]
-        ChatId IChatTargetable.ChatId => ChatId;
+        /// <inheritdoc cref="IInlineReplyMarkupMessage.ReplyMarkup" />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InlineKeyboardMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with chatId and gameShortName
         /// </summary>
         /// <param name="chatId">Unique identifier for the target chat</param>
-        /// <param name="gameShortName">
-        /// Short name of the game, serves as the unique identifier for the game
-        /// </param>
+        /// <param name="gameShortName">Short name of the game, serves as the unique identifier for the game</param>
         public SendGameRequest(long chatId, string gameShortName)
             : base("sendGame")
         {

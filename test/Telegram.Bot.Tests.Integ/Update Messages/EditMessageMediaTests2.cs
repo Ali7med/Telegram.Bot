@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Telegram.Bot.Tests.Integ.Framework;
@@ -37,23 +36,20 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 );
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(500);
 
             // Replace video with a document by uploading the new file
             Message editedMessage;
             await using (Stream stream = System.IO.File.OpenRead(Constants.PathToFile.Certificate.PublicKey))
             {
-                InputMedia inputMedia = new InputMedia(content: stream, fileName: "public-key.pem.txt");
-                InputMediaDocument media = new InputMediaDocument(media: inputMedia)
-                {
-                    Caption = "**Public** key in `.pem` format",
-                    ParseMode = ParseMode.Markdown,
-                };
-
                 editedMessage = await BotClient.EditMessageMediaAsync(
-                    chatId: originalMessage.Chat!,
+                    chatId: originalMessage.Chat,
                     messageId: originalMessage.MessageId,
-                    media: media
+                    media: new InputMediaDocument(new InputMedia(stream, "public-key.pem.txt"))
+                    {
+                        Caption = "**Public** key in `.pem` format",
+                        ParseMode = ParseMode.Markdown,
+                    }
                 );
             }
 
@@ -61,6 +57,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
             Assert.Equal(MessageType.Document, editedMessage.Type);
             Assert.NotNull(editedMessage.Document);
             Assert.Null(editedMessage.Video);
+            Assert.Equal("public-key.pem.txt", editedMessage.Document.FileName);
         }
 
         [OrderedFact("Should change a message's photo to an animation having thumbnail")]
@@ -78,27 +75,29 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
 
             // Send a photo to chat. This media will be changed later in test.
             Message originalMessage = await BotClient.SendPhotoAsync(
-                 chatId: _fixture.SupergroupChat,
-                 photo: "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg",
-                 caption: "This message will be edited shortly"
+                chatId: _fixture.SupergroupChat,
+                photo: "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg",
+                caption: "This message will be edited shortly"
             );
 
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(500);
 
             // Replace audio with another audio by uploading the new file. A thumbnail image is also uploaded.
-            await using Stream thumbStream = System.IO.File.OpenRead(Constants.PathToFile.Thumbnail.Video);
-
-            Message editedMessage = await BotClient.EditMessageMediaAsync(
-                chatId: originalMessage.Chat!,
-                messageId: originalMessage.MessageId,
-                media: new InputMediaAnimation(media: gifMessage.Document!.FileId)
-                {
-                    Thumb = new InputMedia(content: thumbStream, fileName: "thumb.jpg"),
-                    Duration = 4,
-                    Height = 320,
-                    Width = 320,
-                }
-            );
+            Message editedMessage;
+            await using (Stream thumbStream = System.IO.File.OpenRead(Constants.PathToFile.Thumbnail.Video))
+            {
+                editedMessage = await BotClient.EditMessageMediaAsync(
+                    chatId: originalMessage.Chat,
+                    messageId: originalMessage.MessageId,
+                    media: new InputMediaAnimation(gifMessage.Document.FileId)
+                    {
+                        Thumb = new InputMedia(thumbStream, "thumb.jpg"),
+                        Duration = 4,
+                        Height = 320,
+                        Width = 320,
+                    }
+                );
+            }
 
             Assert.Equal(originalMessage.MessageId, editedMessage.MessageId);
 
@@ -113,9 +112,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
             Assert.NotEqual(0, editedMessage.Animation.Height);
             Assert.NotEqual(0, editedMessage.Animation.FileSize);
             Assert.NotEmpty(editedMessage.Animation.FileId);
-            Assert.NotNull(editedMessage.Animation.FileName);
             Assert.NotEmpty(editedMessage.Animation.FileName);
-            Assert.NotNull(editedMessage.Animation.MimeType);
             Assert.NotEmpty(editedMessage.Animation.MimeType);
 
             Assert.NotNull(editedMessage.Animation.Thumb);

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -31,59 +32,43 @@ namespace Telegram.Bot.Tests.Integ.Other
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.GetFile)]
         public async Task Should_Get_File_Info()
         {
-            int fileSize = 253736;
+            const int fileSize = 253736;
 
             #region Send Document
 
-            await using Stream stream = System.IO.File.OpenRead(Constants.PathToFile.Documents.Hamlet);
+            Message documentMessage;
+            await using (Stream stream = System.IO.File.OpenRead(Constants.PathToFile.Documents.Hamlet))
+            {
+                documentMessage = await BotClient.SendDocumentAsync(
+                    chatId: _fixture.SupergroupChat,
+                    document: stream
+                );
+            }
 
-            Message documentMessage = await BotClient.SendDocumentAsync(
-                chatId: _fixture.SupergroupChat,
-                document: stream
-            );
-
-            string fileId = documentMessage.Document!.FileId;
+            string fileId = documentMessage.Document.FileId;
 
             #endregion
 
             File file = await BotClient.GetFileAsync(documentMessage.Document.FileId);
 
             Assert.Equal(fileId, file.FileId);
-            Assert.NotNull(file.FileSize);
-            Assert.InRange(file.FileSize.Value, fileSize - 3500, fileSize + 3500);
-            Assert.NotNull(file.FilePath);
+            Assert.InRange(file.FileSize, fileSize - 3500, fileSize + 3500);
             Assert.NotEmpty(file.FilePath);
 
             _classFixture.File = file;
         }
 
-        [OrderedFact("Should download file using file_path")]
-        public async Task Should_Download_Using_FilePath()
-        {
-            int fileSize = _classFixture.File.FileSize!.Value;
-
-            await using MemoryStream destinationStream = new MemoryStream();
-
-            await BotClient.DownloadFileAsync(
-                filePath: _classFixture.File.FilePath!,
-                destination: destinationStream
-            );
-
-            Assert.InRange(destinationStream.Length, fileSize - 100, fileSize + 100);
-        }
-
         [OrderedFact("Should download file using file_path and write it to disk")]
         public async Task Should_Download_Write_Using_FilePath()
         {
-            int fileSize = _classFixture.File.FileSize!.Value;
+            int fileSize = _classFixture.File.FileSize;
 
             string destinationFilePath = $"{Path.GetTempFileName()}.{Fixture.FileType}";
             _output.WriteLine($@"Writing file to ""{destinationFilePath}""");
 
             await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-
             await BotClient.DownloadFileAsync(
-                filePath: _classFixture.File.FilePath!,
+                filePath: _classFixture.File.FilePath,
                 destination: fileStream
             );
 
@@ -93,7 +78,7 @@ namespace Telegram.Bot.Tests.Integ.Other
         [OrderedFact("Should download file using file_id and write it to disk")]
         public async Task Should_Download_Write_Using_FileId()
         {
-            int fileSize = _classFixture.File.FileSize!.Value;
+            int fileSize = _classFixture.File.FileSize;
 
             string destinationFilePath = $"{Path.GetTempFileName()}.{Fixture.FileType}";
             _output.WriteLine($@"Writing file to ""{destinationFilePath}""");
@@ -106,45 +91,37 @@ namespace Telegram.Bot.Tests.Integ.Other
 
             Assert.InRange(fileStream.Length, fileSize - 100, fileSize + 100);
             Assert.True(JToken.DeepEquals(
-                JToken.FromObject(_classFixture.File),
-                JToken.FromObject(file)
+                JToken.FromObject(_classFixture.File), JToken.FromObject(file)
             ));
         }
 
-        [OrderedFact("Should throw ApiRequestException while trying to get file using wrong file_id")]
+        [OrderedFact("Should throw InvalidParameterException while trying to get file using wrong file_id")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.GetFile)]
-        public async Task Should_Throw_ApiRequestException_When_Invalid_FileId()
+        public async Task Should_Throw_FileId_InvalidParameterException()
         {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
-                async () => await BotClient.GetFileAsync(fileId: "Invalid_File_id")
+            InvalidParameterException exception = await Assert.ThrowsAnyAsync<InvalidParameterException>(async () =>
+                await BotClient.GetFileAsync("Invalid_File_id")
             );
 
-            Assert.Equal(400, exception.ErrorCode);
-            Assert.Contains("file_id", exception.Message);
+            Assert.Equal("file_id", exception.Parameter);
         }
 
-        [OrderedFact("Should throw ApiRequestException while trying to download file using wrong file_path")]
+        [OrderedFact("Should throw HttpRequestException while trying to download file using wrong file_path")]
         public async Task Should_Throw_FilePath_HttpRequestException()
         {
-            await using MemoryStream destinationStream = new MemoryStream();
+            Stream content = default;
 
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
-                async () => await BotClient.DownloadFileAsync(
-                    filePath: "Invalid_File_Path",
-                    destination: destinationStream
-                )
-            );
+            ArgumentNullException exception = await Assert.ThrowsAnyAsync<ArgumentNullException>(async () =>
+            {
+                await BotClient.DownloadFileAsync("Invalid_File_Path", content);
+            });
 
-            Assert.Equal(0, destinationStream.Length);
-            Assert.Equal(0, destinationStream.Position);
-
-            Assert.Equal(404, exception.ErrorCode);
-            Assert.Contains("Not Found", exception.Message);
+            Assert.Null(content);
         }
 
         public class Fixture
         {
-            public static string FileType = "pdf";
+            public const string FileType = "pdf";
 
             public File File { get; set; }
         }

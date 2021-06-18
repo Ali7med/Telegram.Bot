@@ -37,13 +37,9 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
 
             Assert.Equal("Hello world!", message.Text);
             Assert.Equal(MessageType.Text, message.Type);
-            Assert.Equal(_fixture.SupergroupChat.Id.ToString(), message.Chat!.Id.ToString());
-            Assert.InRange(
-                message.Date,
-                DateTime.UtcNow.AddSeconds(-10),
-                DateTime.UtcNow.AddSeconds(10)
-            );
-            Assert.Equal(_fixture.BotUser.Id, message.From!.Id);
+            Assert.Equal(_fixture.SupergroupChat.Id.ToString(), message.Chat.Id.ToString());
+            Assert.InRange(message.Date, DateTime.UtcNow.AddSeconds(-10), DateTime.UtcNow.AddSeconds(2));
+            Assert.Equal(_fixture.BotUser.Id, message.From.Id);
             Assert.Equal(_fixture.BotUser.Username, message.From.Username);
 
             // getMe request returns more information than is present in received updates
@@ -63,7 +59,7 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
 
             Assert.Equal(text, message.Text);
             Assert.Equal(MessageType.Text, message.Type);
-            Assert.Equal(_classFixture.ChannelChat.Id, message.Chat!.Id);
+            Assert.Equal(_classFixture.ChannelChat.Id, message.Chat.Id);
             Assert.Equal(_classFixture.ChannelChat.Username, message.Chat.Username);
         }
 
@@ -87,13 +83,10 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
             Assert.Equal(default, message2.ForwardFromMessageId);
             Assert.Null(message2.ForwardSignature);
             Assert.NotNull(message2.ForwardDate);
-
-            DateTime now = DateTime.UtcNow;
-
             Assert.InRange(
                 message2.ForwardDate.Value,
-                now.AddSeconds(-20),
-                now.AddSeconds(10)
+                DateTime.UtcNow.AddSeconds(-20),
+                DateTime.UtcNow
             );
         }
 
@@ -102,15 +95,15 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendMessage)]
         public async Task Should_Parse_MarkDown_Entities()
         {
-            string url = "https://telegram.org/";
-            Dictionary<MessageEntityType, string> entityValueMappings = new Dictionary<MessageEntityType, string>
+            const string url = "https://telegram.org/";
+            Dictionary<MessageEntityType, string> entityValueMappings = new()
             {
                 {MessageEntityType.Bold, "*bold*"},
                 {MessageEntityType.Italic, "_italic_"},
                 {MessageEntityType.TextLink, $"[inline url to Telegram.org]({url})"},
                 {
                     MessageEntityType.TextMention,
-                    $"[{_fixture.BotUser.Username!.Replace("_", @"\_")}](tg://user?id={_fixture.BotUser.Id})"
+                    $"[{_fixture.BotUser.GetSafeUsername()}](tg://user?id={_fixture.BotUser.Id})"
                 },
                 {MessageEntityType.Code, @"inline ""`fixed-width code`"""},
                 {MessageEntityType.Pre, "```pre-formatted fixed-width code block```"},
@@ -123,7 +116,6 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
                 disableWebPagePreview: true
             );
 
-            Assert.NotNull(message.Entities);
             Assert.Equal(entityValueMappings.Keys, message.Entities.Select(e => e.Type));
             Assert.Equal(url, message.Entities.Single(e => e.Type == MessageEntityType.TextLink).Url);
             Asserts.UsersEqual(
@@ -136,7 +128,7 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendMessage)]
         public async Task Should_Parse_HTML_Entities()
         {
-            string url = "https://telegram.org/";
+            const string url = "https://telegram.org/";
             (MessageEntityType Type, string Value)[] entityValueMappings =
             {
                 (MessageEntityType.Bold, "<b>bold</b>"),
@@ -161,7 +153,6 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
                 disableWebPagePreview: true
             );
 
-            Assert.NotNull(message.Entities);
             Assert.Equal(
                 entityValueMappings.Select(tuple => tuple.Type),
                 message.Entities.Select(e => e.Type)
@@ -179,11 +170,11 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
         {
             (MessageEntityType Type, string Value)[] entityValueMappings =
             {
-                (MessageEntityType.PhoneNumber, "+386 12 345 678"),
+                (MessageEntityType.PhoneNumber, "+38612345678"),
                 (MessageEntityType.Cashtag, "$EUR"),
                 (MessageEntityType.Hashtag, "#TelegramBots"),
                 (MessageEntityType.Mention, "@BotFather"),
-                (MessageEntityType.Url, "http://github.com/TelegramBots"),
+                (MessageEntityType.Url, "https://github.com/TelegramBots"),
                 (MessageEntityType.Email, "security@telegram.org"),
                 (MessageEntityType.BotCommand, "/test"),
                 (MessageEntityType.BotCommand, $"/test@{_fixture.BotUser.Username}"),
@@ -194,7 +185,6 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
                 text: string.Join("\n", entityValueMappings.Select(tuple => tuple.Value))
             );
 
-            Assert.NotNull(message.Entities);
             Assert.Equal(
                 entityValueMappings.Select(t => t.Type),
                 message.Entities.Select(e => e.Type)
@@ -207,31 +197,30 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendMessage)]
         public async Task Should_Parse_MarkdownV2_Entities()
         {
-            string url = "https://telegram.org/";
-            string textMention = $"[{_fixture.BotUser.Username!.Replace("_", @"\_")}]" +
-                                 $"(tg://user?id={_fixture.BotUser.Id})";
-
-            (MessageEntityType Type, string Value)[] entityValueMappings =
+            const string url = "https://telegram.org/";
+            Dictionary<MessageEntityType, string> entityValueMappings = new()
             {
-                (MessageEntityType.Bold, "*bold*"),
-                (MessageEntityType.Italic, "_italic_"),
-                (MessageEntityType.TextLink, $"[inline url to Telegram\\.org]({url})"),
-                (MessageEntityType.TextMention, textMention),
-                (MessageEntityType.Code, @"inline ""`fixed-width code`"""),
-                (MessageEntityType.Pre, "```pre-formatted fixed-width code block```"),
-                (MessageEntityType.Strikethrough, "~strikethrough~"),
-                (MessageEntityType.Underline, "__underline__"),
+                {MessageEntityType.Bold, "*bold*"},
+                {MessageEntityType.Italic, "_italic_"},
+                {MessageEntityType.TextLink, $"[inline url to Telegram\\.org]({url})"},
+                {
+                    MessageEntityType.TextMention,
+                    $"[{_fixture.BotUser.GetSafeUsername()}](tg://user?id={_fixture.BotUser.Id})"
+                },
+                {MessageEntityType.Code, @"inline ""`fixed-width code`"""},
+                {MessageEntityType.Pre, "```pre-formatted fixed-width code block```"},
+                {MessageEntityType.Strikethrough, "~strikethrough~"},
+                {MessageEntityType.Underline, "__underline__"},
             };
 
             Message message = await BotClient.SendTextMessageAsync(
                 chatId: _fixture.SupergroupChat.Id,
-                text: string.Join("\n", entityValueMappings.Select(x => x.Value)),
+                text: string.Join("\n", entityValueMappings.Values),
                 parseMode: ParseMode.MarkdownV2,
                 disableWebPagePreview: true
             );
 
-            Assert.NotNull(message.Entities);
-            Assert.Equal(entityValueMappings.Select(x => x.Type), message.Entities.Select(e => e.Type));
+            Assert.Equal(entityValueMappings.Keys, message.Entities.Select(e => e.Type));
             Assert.Equal(url, message.Entities.Single(e => e.Type == MessageEntityType.TextLink).Url);
             Asserts.UsersEqual(
                 _fixture.BotUser,

@@ -23,9 +23,9 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendContact)]
         public async Task Should_Send_Contact()
         {
-            string phoneNumber = "+1234567890";
-            string firstName = "Han";
-            string lastName = "Solo";
+            const string phoneNumber = "+1234567890";
+            const string firstName = "Han";
+            const string lastName = "Solo";
 
             Message message = await BotClient.SendContactAsync(
                 chatId: _fixture.SupergroupChat,
@@ -35,7 +35,7 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
             );
 
             Assert.Equal(MessageType.Contact, message.Type);
-            Assert.Equal(phoneNumber, message.Contact!.PhoneNumber);
+            Assert.Equal(phoneNumber, message.Contact.PhoneNumber);
             Assert.Equal(firstName, message.Contact.FirstName);
             Assert.Equal(lastName, message.Contact.LastName);
         }
@@ -70,7 +70,7 @@ namespace Telegram.Bot.Tests.Integ.Sending_Messages
             );
 
             Assert.Equal(MessageType.Contact, message.Type);
-            Assert.Equal(vcard, message.Contact!.Vcard);
+            Assert.Equal(vcard, message.Contact.Vcard);
         }
     }
 }

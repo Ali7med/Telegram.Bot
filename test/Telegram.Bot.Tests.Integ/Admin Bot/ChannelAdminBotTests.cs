@@ -118,7 +118,7 @@ namespace Telegram.Bot.Tests.Integ.Admin_Bot
         {
             await using Stream stream = System.IO.File.OpenRead(Constants.PathToFile.Photos.Logo);
             await BotClient.SetChatPhotoAsync(
-                chatId: _classFixture.ChannelChat.Id,
+                chatId: _classFixture.Chat.Id,
                 photo: stream
             );
         }
@@ -147,10 +147,8 @@ namespace Telegram.Bot.Tests.Integ.Admin_Bot
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.DeleteChatPhoto)]
         public async Task Should_Throw_On_Deleting_Chat_Deleted_Photo()
         {
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
-                async () => await BotClient.DeleteChatPhotoAsync(
-                    chatId: _classFixture.ChannelChat.Id
-                )
+            Exception e = await Assert.ThrowsAnyAsync<Exception>(
+                async () => await BotClient.DeleteChatPhotoAsync(_classFixture.Chat.Id)
             );
 
             Assert.Equal(400, exception.ErrorCode);
@@ -167,11 +165,8 @@ namespace Telegram.Bot.Tests.Integ.Admin_Bot
         {
             string setName = "EvilMinds";
 
-            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
-                async () => await _fixture.BotClient.SetChatStickerSetAsync(
-                    chatId: _classFixture.ChannelChat.Id,
-                    stickerSetName: setName
-                )
+            ApiRequestException exception = await Assert.ThrowsAnyAsync<ApiRequestException>(async () =>
+                await _fixture.BotClient.SetChatStickerSetAsync(_classFixture.Chat.Id, setName)
             );
 
             Assert.Equal(400, exception.ErrorCode);

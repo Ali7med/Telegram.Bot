@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
@@ -11,7 +11,10 @@ namespace Telegram.Bot.Requests
     /// Send information about a venue
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SendVenueRequest : RequestBase<Message>, IChatTargetable
+    public class SendVenueRequest : RequestBase<Message>,
+                                    INotifiableMessage,
+                                    IReplyMessage,
+                                    IReplyMarkupMessage<IReplyMarkup>
     {
         /// <summary>
         /// Unique identifier for the target chat or username of the target channel
@@ -23,13 +26,13 @@ namespace Telegram.Bot.Requests
         /// Latitude of the venue
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Latitude { get; }
+        public float Latitude { get; }
 
         /// <summary>
         /// Longitude of the venue
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Longitude { get; }
+        public float Longitude { get; }
 
         /// <summary>
         /// Name of the venue
@@ -47,48 +50,56 @@ namespace Telegram.Bot.Requests
         /// Foursquare identifier of the venue
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareId { get; set; }
+        public string FoursquareId { get; set; }
 
         /// <summary>
         /// Optional. Foursquare type of the venue. (For example, "arts_entertainment/default",
         /// "arts_entertainment/aquarium" or "food/icecream".)
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareType { get; set; }
+        public string FoursquareType { get; set; }
 
         /// <summary>
-        /// Sends the message silently. Users will receive a notification with no sound.
+        /// Google Places identifier of the venue
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableNotification { get; set; }
+        public string GooglePlaceId { get; set; }
 
         /// <summary>
-        /// If the message is a reply, ID of the original message.
+        /// Google Places type of the venue.
+        /// <see href="https://developers.google.com/places/web-service/supported_types"/>
         /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string GooglePlaceType { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool DisableNotification { get; set; }
+
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? ReplyToMessageId { get; set; }
 
-        /// <summary>
-        /// A JSON-serialized object for a custom reply keyboard,
-        /// instructions to hide keyboard or to force a reply from the user.
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IReplyMarkup? ReplyMarkup { get; set; }
+        public bool? AllowSendingWithoutReply { get; set; }
+
+        /// <inheritdoc />
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IReplyMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with chatId, location, venue title and address
         /// </summary>
-        /// <param name="chatId">
-        /// Unique identifier for the target chat or username of the target channel
-        /// </param>
+        /// <param name="chatId">Unique identifier for the target chat or username of the target channel</param>
         /// <param name="latitude">Latitude of the venue</param>
         /// <param name="longitude">Longitude of the venue</param>
         /// <param name="title">Name of the venue</param>
         /// <param name="address">Address of the venue</param>
         public SendVenueRequest(
             ChatId chatId,
-            double latitude,
-            double longitude,
+            float latitude,
+            float longitude,
             string title,
             string address
         )
