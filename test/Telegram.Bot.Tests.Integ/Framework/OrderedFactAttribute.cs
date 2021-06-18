@@ -67,7 +67,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
             }
         }
 
-        internal string ExceptionTypeFullName { get; private set; }
+        internal string? ExceptionTypeFullName { get; private set; }
 
         private int _maxRetries;
 

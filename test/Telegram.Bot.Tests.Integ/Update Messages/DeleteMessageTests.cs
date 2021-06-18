@@ -35,7 +35,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
 
             await BotClient.AnswerInlineQueryAsync(
                 inlineQueryId: queryUpdate.InlineQuery!.Id,
-                results: new []
+                results: new[]
                 {
                     new InlineQueryResultArticle(
                         id: "article-to-delete",
@@ -48,8 +48,8 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Text);
+            (Update? messageUpdate, _) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Text);
 
             await Task.Delay(TimeSpan.FromSeconds(1));
 

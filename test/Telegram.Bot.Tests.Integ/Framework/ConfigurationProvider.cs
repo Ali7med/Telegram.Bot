@@ -16,18 +16,14 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 .AddEnvironmentVariables("TelegramBot_")
                 .Build();
 
-            TestConfigurations = new TestConfigurations
-            {
-                ApiToken = configuration[nameof(TestConfigurations.ApiToken)],
-                AllowedUserNames = configuration[nameof(TestConfigurations.AllowedUserNames)] ?? string.Empty,
-
-                SuperGroupChatId = configuration[nameof(TestConfigurations.SuperGroupChatId)],
-                ChannelChatId = configuration[nameof(TestConfigurations.ChannelChatId)],
-
-                PaymentProviderToken = configuration[nameof(TestConfigurations.PaymentProviderToken)],
-
-                RegularGroupMemberId = configuration[nameof(TestConfigurations.RegularGroupMemberId)],
-            };
+            TestConfigurations = new TestConfigurations(
+                apiToken: configuration[nameof(TestConfigurations.ApiToken)],
+                allowedUserNames: configuration[nameof(TestConfigurations.AllowedUserNames)] ?? string.Empty,
+                superGroupChatId: configuration[nameof(TestConfigurations.SuperGroupChatId)],
+                channelChatId: configuration[nameof(TestConfigurations.ChannelChatId)],
+                paymentProviderToken: configuration[nameof(TestConfigurations.PaymentProviderToken)],
+                regularGroupMemberId: configuration[nameof(TestConfigurations.RegularGroupMemberId)]
+            );
 
             if (long.TryParse(configuration[nameof(TestConfigurations.TesterPrivateChatId)], out long privateChat))
             {

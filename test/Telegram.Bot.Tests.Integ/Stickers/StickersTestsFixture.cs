@@ -8,13 +8,13 @@ namespace Telegram.Bot.Tests.Integ.Stickers
 {
     public class StickersTestsFixture
     {
-        public StickerSet EvilMindsStickerSet { get; set; }
+        public StickerSet? EvilMindsStickerSet { get; set; }
 
-        public IEnumerable<File> UploadedStickers { get; set; }
+        public IEnumerable<File>? UploadedStickers { get; set; }
 
         public string TestStickerSetName { get; }
 
-        public StickerSet TestStickerSet { get; set; }
+        public StickerSet? TestStickerSet { get; set; }
 
         public long OwnerUserId { get; }
 

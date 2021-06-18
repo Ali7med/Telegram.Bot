@@ -95,10 +95,10 @@ namespace Telegram.Bot.Tests.Integ.Polls
             Assert.Equal(_classFixture.OriginalPollMessage.Poll!.Id, closedPoll.Id);
             Assert.True(closedPoll.IsClosed);
 
-            PollAnswer pollAnswer = _classFixture.PollAnswer;
+            PollAnswer? pollAnswer = _classFixture.PollAnswer;
 
             Assert.All(
-                pollAnswer.OptionIds,
+                pollAnswer?.OptionIds,
                 optionId => Assert.True(closedPoll.Options[optionId].VoterCount > 0)
             );
         }

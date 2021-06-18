@@ -2,6 +2,21 @@ namespace Telegram.Bot.Tests.Integ.Framework
 {
     public class TestConfigurations
     {
+        public TestConfigurations(string apiToken,
+                                  string allowedUserNames,
+                                  string superGroupChatId,
+                                  string channelChatId,
+                                  string paymentProviderToken,
+                                  string regularGroupMemberId)
+        {
+            ApiToken = apiToken;
+            AllowedUserNames = allowedUserNames;
+            SuperGroupChatId = superGroupChatId;
+            ChannelChatId = channelChatId;
+            PaymentProviderToken = paymentProviderToken;
+            RegularGroupMemberId = regularGroupMemberId;
+        }
+
         public string ApiToken { get; set; }
 
         public string AllowedUserNames { get; set; }

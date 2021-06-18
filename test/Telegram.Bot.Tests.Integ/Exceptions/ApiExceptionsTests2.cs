@@ -50,7 +50,7 @@ namespace Telegram.Bot.Tests.Integ.Exceptions
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.SendMessage)]
         public async Task Should_Throw_ApiRequestException_When_Asked_To_Share_Contact_In_Non_Private_Chat()
         {
-            ReplyKeyboardMarkup replyMarkup = new ReplyKeyboardMarkup(new[]
+            ReplyKeyboardMarkup replyMarkup = new(new[]
             {
                 KeyboardButton.WithRequestContact("Share Contact"),
             });

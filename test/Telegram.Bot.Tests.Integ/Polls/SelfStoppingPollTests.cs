@@ -123,8 +123,8 @@ namespace Telegram.Bot.Tests.Integ.Polls
             Assert.NotNull(update.Poll.CloseDate);
             Assert.InRange(
                 update.Poll.CloseDate.Value,
-                _classFixture.CloseDate.AddSeconds(-2),
-                _classFixture.CloseDate.AddSeconds(2)
+                _classFixture.CloseDate.Value.AddSeconds(-2),
+                _classFixture.CloseDate.Value.AddSeconds(2)
             );
             Assert.True(update.Poll.IsClosed);
         }

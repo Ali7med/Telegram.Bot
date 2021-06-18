@@ -31,7 +31,7 @@ namespace Telegram.Bot.Tests.Integ.Exceptions
             );
 
             Update forwardedMessageUpdate = await _fixture.UpdateReceiver.GetUpdateAsync(u =>
-                    u.Message?.ForwardFrom != null,
+                    u.Message?.ForwardFrom is not null,
                 updateTypes: UpdateType.Message
             );
             await _fixture.UpdateReceiver.DiscardNewUpdatesAsync();

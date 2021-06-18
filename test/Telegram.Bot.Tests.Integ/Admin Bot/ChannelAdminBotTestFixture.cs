@@ -15,7 +15,6 @@ namespace Telegram.Bot.Tests.Integ.Admin_Bot
 
 
         public ChannelAdminBotTestFixture(TestsFixture fixture)
-            : base(fixture, Constants.TestCollections.ChannelAdminBots)
         {
             AddLifetime(
                 initialize: async () =>

@@ -95,35 +95,42 @@ namespace Telegram.Bot.Tests.Integ.Other
             ));
         }
 
-        [OrderedFact("Should throw InvalidParameterException while trying to get file using wrong file_id")]
+        [OrderedFact("Should throw ApiRequestException while trying to get file using wrong file_id")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.GetFile)]
-        public async Task Should_Throw_FileId_InvalidParameterException()
+        public async Task Should_Throw_ApiRequestException_When_Invalid_FileId()
         {
-            InvalidParameterException exception = await Assert.ThrowsAnyAsync<InvalidParameterException>(async () =>
-                await BotClient.GetFileAsync("Invalid_File_id")
+            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
+                async () => await BotClient.GetFileAsync(fileId: "Invalid_File_id")
             );
 
-            Assert.Equal("file_id", exception.Parameter);
+            Assert.Equal(400, exception.ErrorCode);
+            Assert.Contains("file_id", exception.Message);
         }
 
-        [OrderedFact("Should throw HttpRequestException while trying to download file using wrong file_path")]
+        [OrderedFact("Should throw ApiRequestException while trying to download file using wrong file_path")]
         public async Task Should_Throw_FilePath_HttpRequestException()
         {
-            Stream content = default;
+            await using MemoryStream destinationStream = new();
 
-            ArgumentNullException exception = await Assert.ThrowsAnyAsync<ArgumentNullException>(async () =>
-            {
-                await BotClient.DownloadFileAsync("Invalid_File_Path", content);
-            });
+            ApiRequestException exception = await Assert.ThrowsAsync<ApiRequestException>(
+                async () => await BotClient.DownloadFileAsync(
+                    filePath: "Invalid_File_Path",
+                    destination: destinationStream
+                )
+            );
 
-            Assert.Null(content);
+            Assert.Equal(0, destinationStream.Length);
+            Assert.Equal(0, destinationStream.Position);
+
+            Assert.Equal(404, exception.ErrorCode);
+            Assert.Contains("Not Found", exception.Message);
         }
 
         public class Fixture
         {
             public const string FileType = "pdf";
 
-            public File File { get; set; }
+            public File? File { get; set; }
         }
     }
 }

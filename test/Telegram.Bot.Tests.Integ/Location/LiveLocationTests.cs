@@ -15,7 +15,7 @@ namespace Telegram.Bot.Tests.Integ.Locations
     {
         private ITelegramBotClient BotClient => _fixture.BotClient;
 
-        private Message LocationMessage
+        private Message? LocationMessage
         {
             get => _classFixture.Entity;
             set => _classFixture.Entity = value;
@@ -62,7 +62,7 @@ namespace Telegram.Bot.Tests.Integ.Locations
                 new Location { Latitude = 35.6892f, Longitude = 51.3890f },  // Tehran
             };
 
-            Message editedMessage = default;
+            Message? editedMessage = default;
             foreach (Location newLocation in locations)
             {
                 await Task.Delay(1_500);

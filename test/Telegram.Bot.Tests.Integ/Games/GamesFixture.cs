@@ -15,11 +15,11 @@ namespace Telegram.Bot.Tests.Integ.Games
     {
         public string GameShortName { get; }
 
-        public Message GameMessage { set; get; }
+        public Message? GameMessage { set; get; }
 
-        public string InlineGameMessageId { set; get; }
+        public string? InlineGameMessageId { set; get; }
 
-        public GameHighScore[] HighScores { set; get; }
+        public GameHighScore[]? HighScores { set; get; }
 
         /// <summary>
         /// A chat admin to set the game scores for.
@@ -37,11 +37,11 @@ namespace Telegram.Bot.Tests.Integ.Games
                     {
                         await fixture.BotClient.SendGameAsync(fixture.SupergroupChat.Id, GameShortName);
                     }
-                    catch (InvalidGameShortNameException e)
+                    catch (ApiRequestException e)
                     {
                         throw new ArgumentException(
                             $@"Bot doesn't have game: ""{GameShortName}"". Make sure you set up a game with @BotFather.",
-                            e.Parameter, e
+                            e
                         );
                     }
 

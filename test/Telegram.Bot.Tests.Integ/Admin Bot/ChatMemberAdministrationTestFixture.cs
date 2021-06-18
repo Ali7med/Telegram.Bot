@@ -11,7 +11,7 @@ namespace Telegram.Bot.Tests.Integ.Admin_Bot
         public Chat RegularMemberChat { get; private set; }
         public long RegularMemberUserId { get; private set; }
         public string RegularMemberUserName { get; private set; }
-        public string GroupInviteLink { get; set; }
+        public string? GroupInviteLink { get; set; }
 
         public ChatMemberAdministrationTestFixture(TestsFixture testsFixture)
         {

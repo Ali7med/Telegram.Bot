@@ -10,7 +10,7 @@ namespace Telegram.Bot.Tests.Integ.Other
         private BotCommand[] _originalCommands;
 
         public ITelegramBotClient BotClient => _testsFixture.BotClient;
-        public BotCommand[] NewBotCommands { get; set; }
+        public BotCommand[]? NewBotCommands { get; set; }
 
         public BotCommandsFixture(TestsFixture testsFixture)
         {

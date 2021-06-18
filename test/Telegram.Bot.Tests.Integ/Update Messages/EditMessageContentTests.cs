@@ -95,7 +95,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
             Update inlineQUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
             string data = "change-me" + new Random().Next(2_000);
-            InlineKeyboardMarkup initialMarkup = new InlineKeyboardMarkup(new[]
+            InlineKeyboardMarkup initialMarkup = new(new[]
             {
                 InlineKeyboardButton.WithCallbackData("Click here to change this button", data)
             });
@@ -143,7 +143,7 @@ namespace Telegram.Bot.Tests.Integ.Update_Messages
             Update inlineQUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
             string data = "change-me" + new Random().Next(2_000);
-            InlineKeyboardMarkup replyMarkup = new InlineKeyboardMarkup(new[]
+            InlineKeyboardMarkup replyMarkup = new(new[]
             {
                 InlineKeyboardButton.WithCallbackData("Click here to change caption", data)
             });

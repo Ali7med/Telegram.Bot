@@ -1,7 +1,7 @@
-﻿namespace Telegram.Bot.Tests.Integ.Framework.Fixtures
+namespace Telegram.Bot.Tests.Integ.Framework.Fixtures
 {
     public class EntityFixture<TEntity>
     {
-        public TEntity Entity { get; set; }
+        public TEntity? Entity { get; set; }
     }
 }

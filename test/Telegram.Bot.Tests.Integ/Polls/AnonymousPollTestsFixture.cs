@@ -7,7 +7,7 @@ namespace Telegram.Bot.Tests.Integ.Polls
     {
         public TestsFixture TestsFixture { get; }
 
-        public Message PollMessage { get; set; }
+        public Message? PollMessage { get; set; }
 
         public AnonymousPollTestsFixture(TestsFixture testsFixture)
         {

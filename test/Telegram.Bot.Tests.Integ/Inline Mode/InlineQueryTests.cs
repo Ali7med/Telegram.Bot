@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,18 +54,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             // Answer the query
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
             // Wait for tester to choose a result and send it(as a message) to the chat
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Text);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Text);
 
-            Assert.Equal(MessageType.Text, messageUpdate.Message!.Type);
-            Assert.Equal("article:bot-api", chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Text, messageUpdate?.Message.Type);
+            Assert.Equal("article:bot-api", chosenResultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should get message from an inline query with ViaBot property set")]
@@ -94,17 +93,17 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            Update messageUpdate = await _fixture.UpdateReceiver.GetUpdateAsync(
-                update => update.Message?.ViaBot != null,
+            Update messageUpdate = (await _fixture.UpdateReceiver.GetUpdatesAsync(
+                update => update.Message?.ViaBot is not null,
                 updateTypes: UpdateType.Message
-            );
+            )).First();
 
-            Assert.Equal(MessageType.Text, messageUpdate.Message!.Type);
+            Assert.Equal(MessageType.Text, messageUpdate.Message.Type);
             Assert.NotNull(messageUpdate.Message.ViaBot);
             Assert.Equal(_fixture.BotUser.Id, messageUpdate.Message.ViaBot.Id);
         }
@@ -121,7 +120,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "contact:john-doe";
+            const string resultId = "contact:john-doe";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultContact(id: resultId, phoneNumber: "+1234567", firstName: "John")
@@ -131,17 +130,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Contact);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Contact);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Contact, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Contact, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a location")]
@@ -155,29 +155,29 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "location:hobitton";
+            const string resultId = "location:hobitton";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultLocation(
                     id: resultId,
                     latitude: -37.8721897f,
                     longitude: 175.6810213f,
-                    title: "Hobbiton Movie Set"
-                )
+                    title: "Hobbiton Movie Set")
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Location);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Location);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Location, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Location, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a venue")]
@@ -191,7 +191,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "venue:hobbiton";
+            const string resultId = "venue:hobbiton";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultVenue(
@@ -199,22 +199,22 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
                     latitude: -37.8721897f,
                     longitude: 175.6810213f,
                     title: "Hobbiton Movie Set",
-                    address: "501 Buckland Rd, Hinuera, Matamata 3472, New Zealand"
-                )
+                    address: "501 Buckland Rd, Hinuera, Matamata 3472, New Zealand")
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Venue);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Venue);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Venue, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Venue, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a photo")]
@@ -228,31 +228,31 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "photo:rainbow-girl";
-            string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
-            string caption = "Rainbow Girl";
+            const string resultId = "photo:rainbow-girl";
+            const string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
+            const string caption = "Rainbow Girl";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultPhoto(id: resultId, photoUrl: url, thumbUrl: url)
-                )
                 {
                     Caption = caption
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Photo);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Photo);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Photo, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
-            Assert.Equal(caption, messageUpdate.Message.Caption);
+            Assert.Equal(MessageType.Photo, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
+            Assert.Equal(caption, messageUpdate?.Message.Caption);
         }
 
         [OrderedFact("Should send a photo and answer inline query with a cached photo using its file_id")]
@@ -272,29 +272,30 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "photo:apes";
-            string caption = "Apes smoking shisha";
+            const string resultId = "photo:apes";
+            const string caption = "Apes smoking shisha";
             InlineQueryResultBase[] results =
+            {
                 new InlineQueryResultCachedPhoto(id: resultId, photoFileId: photoMessage.Photo.First().FileId)
-                )
                 {
                     Caption = caption
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Photo);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Photo);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Photo, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
-            Assert.Equal(caption, messageUpdate.Message.Caption);
+            Assert.Equal(MessageType.Photo, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
+            Assert.Equal(caption, messageUpdate?.Message.Caption);
         }
 
         [OrderedFact("Should answer inline query with a video")]
@@ -308,7 +309,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "sunset_video";
+            const string resultId = "sunset_video";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultVideo(
@@ -323,23 +324,26 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Video);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Video);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Video, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Video, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a YouTube video (HTML page)")]
         [Trait(Constants.MethodTraitName, Constants.TelegramBotApiMethods.AnswerInlineQuery)]
         public async Task Should_Answer_Inline_Query_With_HTML_Video()
         {
+            // ToDo exception when input_message_content not specified. Bad Request: SEND_MESSAGE_MEDIA_INVALID
+
             await _fixture.SendTestInstructionsAsync(
                 "Staring the inline query with this message...",
                 startInlineQuery: true
@@ -347,8 +351,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "youtube_video";
-            string messageText = "[Rocket Launch](https://www.youtube.com/watch?v=1S0CTtY8Qa0)";
+            const string resultId = "youtube_video";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultVideo(
@@ -357,27 +360,28 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
                     mimeType: "text/html",
                     thumbUrl: "https://www.youtube.com/watch?v=1S0CTtY8Qa0",
                     title: "Rocket Launch")
+                {
                     InputMessageContent =
                         new InputTextMessageContent("[Rocket Launch](https://www.youtube.com/watch?v=1S0CTtY8Qa0)")
                         {
                             ParseMode = ParseMode.Markdown
                         }
-                        }
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Text);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Text);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Text, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Text, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send a video and answer inline query with a cached video using its file_id")]
@@ -394,30 +398,31 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "fireworks_video";
+            const string resultId = "fireworks_video";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultCachedVideo(
-                    videoFileId: videoMessage.Video!.FileId,
+                    id: resultId,
+                    videoFileId: videoMessage.Video.FileId,
                     title: "New Year's Eve Fireworks")
-                )
                 {
                     Description = "2017 Fireworks in Germany"
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Video);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Video);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Video, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Video, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with an audio")]
@@ -430,15 +435,15 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             );
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
-            const string resultId = "audio_result";
 
+            const string resultId = "audio_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultAudio(
+                    id: resultId,
                     audioUrl:
                     "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bb/Test_ogg_mp3_48kbps.wav/Test_ogg_mp3_48kbps.wav.mp3",
                     title: "Test ogg mp3")
-                )
                 {
                     Performer = "Shishirdasika",
                     AudioDuration = 25
@@ -446,17 +451,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Audio);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Audio);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Audio, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Audio, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send an audio and answer inline query with a cached audio using its file_id")]
@@ -479,29 +485,30 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "audio_result";
+            const string resultId = "audio_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultCachedAudio(
-                    audioFileId: audioMessage.Audio!.FileId)
-                )
+                    id: resultId,
+                    audioFileId: audioMessage.Audio.FileId)
                 {
                     Caption = "Jackson F. Smith - Cantina Rag"
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Audio);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Audio);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Audio, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Audio, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with an audio")]
@@ -515,7 +522,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "voice_result";
+            const string resultId = "voice_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultVoice(
@@ -529,17 +536,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Voice);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Voice);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Voice, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Voice, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send an audio and answer inline query with a cached audio using its file_id")]
@@ -560,28 +568,29 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "voice_result";
+            const string resultId = "voice_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultCachedVoice(
                     id: resultId,
-                    fileId: voiceMessage.Voice!.FileId,
+                    fileId: voiceMessage.Voice.FileId,
                     title: "Test Voice"
                 )
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Voice);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Voice);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Voice, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Voice, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a document")]
@@ -595,34 +604,33 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "document_result";
-            string documentUrl = "http://www.adobe.com/content/dam/acom/en/devnet/acrobat/" +
-                                       "pdfs/pdf_open_parameters.pdf";
+            const string resultId = "document_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultDocument(
                     id: resultId,
-                    documentUrl: documentUrl,
-                    title: "Parameters for Opening PDF Files",
+                    documentUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    title: "Dummy PDF File",
                     mimeType: "application/pdf")
                 {
-                    Caption = "Parameters for Opening PDF Files",
-                    Description = "Sample PDF file",
+                    Caption = "Dummy PDF File",
+                    Description = "Dummy PDF File for testing",
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Document);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Document);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Document, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Document, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send a document and answer inline query with a cached document using its file_id")]
@@ -642,13 +650,13 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "document_result";
+            const string resultId = "document_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultCachedDocument(
-                    documentFileId: documentMessage.Document!.FileId,
+                    id: resultId,
+                    documentFileId: documentMessage.Document.FileId,
                     title: "Test Document")
-                )
                 {
                     Caption = "The Tragedy of Hamlet, Prince of Denmark",
                     Description = "Sample PDF Document",
@@ -656,17 +664,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Document);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Document);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Document, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Document, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a gif")]
@@ -680,18 +689,13 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "gif_result";
-            string gitUrl = "https://upload.wikimedia.org/wikipedia/commons/" +
-                                  "2/2c/Rotating_earth_%28large%29.gif";
-            string thumbUrl = "https://upload.wikimedia.org/wikipedia/commons/" +
-                                    "2/2c/Rotating_earth_%28large%29.gif";
-
+            const string resultId = "gif_result";
             InlineQueryResultBase[] results =
+            {
                 new InlineQueryResultGif(
                     id: resultId,
                     gifUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif",
                     thumbUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif")
-                )
                 {
                     Caption = "Rotating Earth",
                     GifDuration = 4,
@@ -703,17 +707,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Document);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Document);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Document, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Document, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send a gif and answer inline query with a cached gif using its file_id")]
@@ -724,32 +729,32 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
                 chatId: _fixture.SupergroupChat,
                 document: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif",
                 replyMarkup: (InlineKeyboardMarkup) InlineKeyboardButton
-                    .WithSwitchInlineQueryCurrentChat("Start inline query")
-            );
+                    .WithSwitchInlineQueryCurrentChat("Start inline query"));
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "gif_result";
+            const string resultId = "gif_result";
             InlineQueryResultBase[] results =
+            {
                 new InlineQueryResultCachedGif(id: resultId, gifFileId: gifMessage.Document.FileId)
-                )
                 {
                     Caption = "Rotating Earth",
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Document);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Document);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Document, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Document, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with an mpeg4 gif")]
@@ -763,7 +768,7 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "mpeg4_gif_result";
+            const string resultId = "mpeg4_gif_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultMpeg4Gif(
@@ -776,17 +781,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Video);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Video);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Video, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Video, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should send an mpeg4 gif and answer inline query with a cached mpeg4 gif using its file_id")]
@@ -801,27 +807,28 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "mpeg4_gif_result";
+            const string resultId = "mpeg4_gif_result";
             InlineQueryResultBase[] results =
+            {
                 new InlineQueryResultCachedMpeg4Gif(id: resultId, mpeg4FileId: gifMessage.Document.FileId)
-                )
                 {
                     Caption = "Rotating Earth",
                 }
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Document);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Document);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Document, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Document, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a cached sticker using its file_id")]
@@ -838,24 +845,25 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             StickerSet stickerSet = await BotClient.GetStickerSetAsync("EvilMinds");
 
-            string resultId = "sticker_result";
+            const string resultId = "sticker_result";
             InlineQueryResultBase[] results =
             {
                 new InlineQueryResultCachedSticker(id: resultId, stickerFileId: stickerSet.Stickers[0].FileId)
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Sticker);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Sticker);
+            Update? resultUpdate = chosenResultUpdate;
 
-            Assert.Equal(MessageType.Sticker, messageUpdate.Message!.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(MessageType.Sticker, messageUpdate?.Message.Type);
+            Assert.Equal(resultId, resultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, resultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should answer inline query with a photo with markdown encoded caption")]
@@ -869,12 +877,12 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
 
             Update iqUpdate = await _fixture.UpdateReceiver.GetInlineQueryUpdateAsync();
 
-            string resultId = "photo:rainbow-girl-caption";
-            string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
-            string photoCaption = "Rainbow Girl";
+            const string resultId = "photo:rainbow-girl-caption";
+            const string url = "https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_640.jpg";
+            const string photoCaption = "Rainbow Girl";
             InlineQueryResultBase[] results =
+            {
                 new InlineQueryResultPhoto(id: resultId, photoUrl: url, thumbUrl: url)
-                )
                 {
                     Caption = $"*{photoCaption}*",
                     ParseMode = ParseMode.Markdown
@@ -882,21 +890,21 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
             };
 
             await BotClient.AnswerInlineQueryAsync(
-                inlineQueryId: iqUpdate.InlineQuery!.Id,
+                inlineQueryId: iqUpdate.InlineQuery.Id,
                 results: results,
                 cacheTime: 0
             );
 
-            (Update messageUpdate, Update chosenResultUpdate) = await _fixture.UpdateReceiver
-                .GetInlineQueryResultUpdates(MessageType.Photo);
+            (Update? messageUpdate, Update? chosenResultUpdate) =
+                await _fixture.UpdateReceiver.GetInlineQueryResultUpdates(MessageType.Photo);
 
-            Assert.Equal(MessageType.Photo, messageUpdate.Message!.Type);
-            Assert.Equal(photoCaption, messageUpdate.Message.Caption);
-            Assert.Equal(MessageEntityType.Bold, messageUpdate.Message.CaptionEntities!.Single().Type);
+            Assert.Equal(MessageType.Photo, messageUpdate?.Message.Type);
+            Assert.Equal(photoCaption, messageUpdate?.Message.Caption);
+            Assert.Equal(MessageEntityType.Bold, messageUpdate?.Message.CaptionEntities.Single().Type);
 
-            Assert.Equal(UpdateType.ChosenInlineResult, chosenResultUpdate.Type);
-            Assert.Equal(resultId, chosenResultUpdate.ChosenInlineResult!.ResultId);
-            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate.ChosenInlineResult.Query);
+            Assert.Equal(UpdateType.ChosenInlineResult, chosenResultUpdate?.Type);
+            Assert.Equal(resultId, chosenResultUpdate?.ChosenInlineResult.ResultId);
+            Assert.Equal(iqUpdate.InlineQuery.Query, chosenResultUpdate?.ChosenInlineResult.Query);
         }
 
         [OrderedFact("Should throw exception when answering an inline query after 10 seconds")]
@@ -921,21 +929,18 @@ namespace Telegram.Bot.Tests.Integ.Inline_Mode
                 },
             };
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-            ApiRequestException e = await Assert.ThrowsAnyAsync<ApiRequestException>(() =>
+            await Task.Delay(10_000);
+
+            ApiRequestException e = await Assert.ThrowsAsync<ApiRequestException>(() =>
                 BotClient.AnswerInlineQueryAsync(
                     inlineQueryId: queryUpdate.InlineQuery.Id,
                     results: results,
                     cacheTime: 0
-                    /* cacheTime: */ 0
                 )
             );
 
-            Assert.Contains(
-                "query is too old and response timeout expired or query ID is invalid",
-                exception.Message
-            );
-            Assert.Equal(400, exception.ErrorCode);
+            Assert.Equal("Bad Request: query is too old and response timeout expired or query ID is invalid", e.Message);
+            Assert.Equal(400, e.ErrorCode);
         }
     }
 }

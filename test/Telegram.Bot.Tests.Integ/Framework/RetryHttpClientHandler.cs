@@ -25,7 +25,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            HttpResponseMessage httpResponseMessage = default;
+            HttpResponseMessage? httpResponseMessage = default;
 
             for (var i = 0; i < _retryCount; i++)
             {
@@ -38,7 +38,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
                 _diagnosticMessageSink.OnMessage(new DiagnosticMessage("Request was rate limited"));
 
-                var body = await httpResponseMessage.Content.ReadAsStringAsync();
+                var body = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
 
                 // Deserializing with an arbitrary type parameter since Result property should
                 // be empty at this stage
@@ -46,7 +46,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
                 if (apiResponse.Parameters is not null)
                 {
-                    var seconds = apiResponse.Parameters.RetryAfter;
+                    int? seconds = apiResponse.Parameters.RetryAfter;
                     // 30 seconds are chosen because it's a an average amount of that has
                     // been seen in integration tests
                     int effectiveSeconds = seconds ?? 30;

@@ -65,14 +65,14 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
         public Task<Message> SendTestInstructionsAsync(
             string instructions,
-            ChatId chatId = default,
-            bool startInlineQuery = default
+            ChatId? chatId = default,
+            bool startInlineQuery = false
         )
         {
             string text = string.Format(Constants.InstructionsMessageFormat, instructions);
             chatId ??= SupergroupChat.Id;
 
-            IReplyMarkup replyMarkup = startInlineQuery
+            IReplyMarkup? replyMarkup = startInlineQuery
                 ? (InlineKeyboardMarkup) InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Start inline query")
                 : default;
 
@@ -90,8 +90,8 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
         public async Task<Message> SendTestCollectionNotificationAsync(
             string collectionName,
-            string instructions = default,
-            ChatId chatId = default) =>
+            string? instructions = default,
+            ChatId? chatId = default) =>
             await SendNotificationToChatAsync(
                 true,
                 collectionName,
@@ -127,7 +127,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
 
         public async Task<Chat> GetChatFromAdminAsync()
         {
-            bool IsMatch(Update u) => u.Message.Type == MessageType.Contact ||
+            static bool IsMatch(Update u) => u.Message.Type == MessageType.Contact ||
                                       u.Message.ForwardFrom?.Id is not null;
 
             var update = (await UpdateReceiver
@@ -175,9 +175,9 @@ namespace Telegram.Bot.Tests.Integ.Framework
         private Task<Message> SendNotificationToChatAsync(
             bool isForCollection,
             string name,
-            string instructions = default,
-            ChatId chatId = default,
-            bool switchInlineQuery = default
+            string? instructions = default,
+            ChatId? chatId = default,
+            bool switchInlineQuery = false
         )
         {
             var textFormat = isForCollection
@@ -192,7 +192,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 text += "\n\n" + string.Format(Constants.InstructionsMessageFormat, instructions);
             }
 
-            IReplyMarkup replyMarkup = switchInlineQuery
+            IReplyMarkup? replyMarkup = switchInlineQuery
                 ? (InlineKeyboardMarkup) InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Start inline query")
                 : default;
 
@@ -265,7 +265,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
                 {
                     if (formContent is StringContent stringContent)
                     {
-                        var stringifiedContent = await stringContent.ReadAsStringAsync();
+                        var stringifiedContent = await stringContent.ReadAsStringAsync(cancellationToken);
                         stringifiedFormContent.Add(stringifiedContent);
                     }
                     else
@@ -279,7 +279,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
             else
             {
                 hasContent = true;
-                content = await e.HttpContent.ReadAsStringAsync();
+                content = await e.HttpContent.ReadAsStringAsync(cancellationToken);
             }
 
             /* Debugging Hint: set breakpoints with conditions here in order to investigate the HTTP request values. */
@@ -292,7 +292,7 @@ namespace Telegram.Bot.Tests.Integ.Framework
             ApiResponseEventArgs e,
             CancellationToken cancellationToken = default)
         {
-            string content = e.ResponseMessage.Content.ReadAsStringAsync().Result;
+            string? content = await e.ResponseMessage?.Content.ReadAsStringAsync(cancellationToken);
 
             /* Debugging Hint: set breakpoints with conditions here in order to investigate the HTTP response received. */
             _ = new object();
