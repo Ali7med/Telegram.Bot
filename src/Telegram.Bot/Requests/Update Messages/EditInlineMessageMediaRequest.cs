@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -10,11 +11,11 @@ namespace Telegram.Bot.Requests
     /// Edit audio, document, photo, or video inline messages
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class EditInlineMessageMediaRequest : RequestBase<bool>
+    public class EditInlineMessageMediaRequest : RequestBase<bool>,
+        IInlineMessage,
+        IInlineReplyMarkupMessage
     {
-        /// <summary>
-        /// Identifier of the inline message
-        /// </summary>
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public string InlineMessageId { get; }
 
@@ -24,11 +25,9 @@ namespace Telegram.Bot.Requests
         [JsonProperty(Required = Required.Always)]
         public InputMediaBase Media { get; }
 
-        /// <summary>
-        /// A JSON-serialized object for an inline keyboard
-        /// </summary>
+        /// <inheritdoc cref="IInlineReplyMarkupMessage.ReplyMarkup" />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InlineKeyboardMarkup? ReplyMarkup { get; set; }
+        public InlineKeyboardMarkup ReplyMarkup { get; set; }
 
         /// <summary>
         /// Initializes a new request with inlineMessageId and new media

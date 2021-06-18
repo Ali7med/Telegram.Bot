@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Telegram.Bot.Converters;
 
@@ -36,7 +36,13 @@ namespace Telegram.Bot.Types
         /// <exception cref="ArgumentException">Thrown when string value isn`t number and doesn't start with @</exception>
         public ChatId(string username)
         {
-            if (username.Length > 1 && username.StartsWith("@"))
+            if (username is null)
+                throw new ArgumentNullException(nameof(username));
+
+            // <see href="https://telegram.org/faq#q-what-can-i-use-as-my-username">
+            // You can use a-z, 0-9 and underscores. Usernames are case-insensitive, but Telegram will store your capitalization
+            // preferences (e.g. Telegram and TeleGram is the same user). The username must be at least five characters long.
+            if (username is { Length: > 5 } && username[0] == '@')
             {
                 Username = username;
             }
@@ -62,7 +68,7 @@ namespace Telegram.Bot.Types
                 return this == chatId;
             }
 
-            return ((string) this).Equals(obj?.ToString());
+            return ((string)this).Equals(obj?.ToString());
         }
 
         /// <inheritdoc />

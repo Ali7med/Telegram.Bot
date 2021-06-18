@@ -11,16 +11,15 @@ namespace Telegram.Bot.Types.Passport
     public class PassportData
     {
         /// <summary>
-        /// Array with information about documents and other Telegram Passport elements that was
-        /// shared with the bot.
+        /// Array with information about documents and other Telegram Passport elements that was shared with the bot.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public EncryptedPassportElement[] Data { get; set; } = default!;
+        public EncryptedPassportElement[] Data { get; set; }
 
         /// <summary>
         /// Encrypted credentials required to decrypt the data.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public EncryptedCredentials Credentials { get; set; } = default!;
+        public EncryptedCredentials Credentials { get; set; }
     }
 }

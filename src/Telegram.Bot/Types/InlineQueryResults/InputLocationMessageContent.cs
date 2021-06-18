@@ -4,12 +4,10 @@ using Newtonsoft.Json.Serialization;
 namespace Telegram.Bot.Types.InlineQueryResults
 {
     /// <summary>
-    /// Represents the content of a location message to be sent as the result of an
-    /// <see cref="InlineQuery"/>.
+    /// Represents the content of a location message to be sent as the result of an <see cref="InlineQuery"/>.
     /// </summary>
     /// <remarks>
-    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will
-    /// ignore them.
+    /// This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public class InputLocationMessageContent : InputMessageContentBase
@@ -18,13 +16,13 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// Latitude of the location in degrees
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Latitude { get; private set; }
+        public float Latitude { get; private set; }
 
         /// <summary>
         /// Longitude of the location in degrees
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public double Longitude { get; private set; }
+        public float Longitude { get; private set; }
 
         /// <summary>
         /// Optional. The radius of uncertainty for the location, measured in meters; 0-1500
@@ -36,7 +34,7 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// How long the live location will be updated
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? LivePeriod { get; set; }
+        public int LivePeriod { get; set; }
 
         /// <summary>
         /// Optional. The direction in which user is moving, in degrees; 1-360. For active live locations only.
@@ -58,7 +56,7 @@ namespace Telegram.Bot.Types.InlineQueryResults
         /// </summary>
         /// <param name="latitude">The latitude of the location</param>
         /// <param name="longitude">The longitude of the location</param>
-        public InputLocationMessageContent(double latitude, double longitude)
+        public InputLocationMessageContent(float latitude, float longitude)
         {
             Latitude = latitude;
             Longitude = longitude;

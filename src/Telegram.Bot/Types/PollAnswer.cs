@@ -13,19 +13,18 @@ namespace Telegram.Bot.Types
         /// Unique poll identifier
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string PollId { get; set; } = default!;
+        public string PollId { get; set; }
 
         /// <summary>
         /// The user, who changed the answer to the poll
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public User User { get; set; } = default!;
+        public User User { get; set; }
 
         /// <summary>
-        /// 0-based identifiers of answer options, chosen by the user. May be empty if the user
-        /// retracted their vote.
+        /// 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public int[] OptionIds { get; set; } = default!;
+        public int[] OptionIds { get; set; }
     }
 }

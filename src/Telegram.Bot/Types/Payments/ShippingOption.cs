@@ -13,18 +13,18 @@ namespace Telegram.Bot.Types.Payments
         /// Shipping option identifier
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; } = default!;
+        public string Id { get; set; }
 
         /// <summary>
         /// Option title
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Title { get; set; } = default!;
+        public string Title { get; set; }
 
         /// <summary>
         /// List of price portions
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public LabeledPrice[] Prices { get; set; } = default!;
+        public LabeledPrice[] Prices { get; set; }
     }
 }

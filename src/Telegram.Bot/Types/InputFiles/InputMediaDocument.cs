@@ -12,7 +12,7 @@ namespace Telegram.Bot.Types
     {
         /// <inheritdoc />
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public InputMedia? Thumb { get; set; }
+        public InputMedia Thumb { get; set; }
 
         /// <summary>
         /// Optional. Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album.
@@ -24,8 +24,9 @@ namespace Telegram.Bot.Types
         /// Initializes a new document media to send with an <see cref="InputMedia"/>
         /// </summary>
         public InputMediaDocument(InputMedia media)
-            : base(media, "document")
         {
+            Type = "document";
+            Media = media;
         }
     }
 }

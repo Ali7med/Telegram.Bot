@@ -31,7 +31,7 @@ namespace Telegram.Bot.Types
         /// Video thumbnail
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public PhotoSize? Thumb { get; set; }
+        public PhotoSize Thumb { get; set; }
 
         /// <summary>
         /// Optional. Original filename as defined by sender
@@ -43,6 +43,6 @@ namespace Telegram.Bot.Types
         /// Optional. Mime type of a file as defined by sender
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? MimeType { get; set; }
+        public string MimeType { get; set; }
     }
 }

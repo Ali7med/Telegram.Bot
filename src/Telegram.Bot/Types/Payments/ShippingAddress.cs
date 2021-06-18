@@ -13,36 +13,36 @@ namespace Telegram.Bot.Types.Payments
         /// ISO 3166-1 alpha-2 country code
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string CountryCode { get; set; } = default!;
+        public string CountryCode { get; set; }
 
         /// <summary>
         /// State, if applicable
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? State { get; set; }
+        public string State { get; set; }
 
         /// <summary>
         /// City
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string City { get; set; } = default!;
+        public string City { get; set; }
 
         /// <summary>
         /// First line for the address
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string StreetLine1 { get; set; } = default!;
+        public string StreetLine1 { get; set; }
 
         /// <summary>
         /// Second line for the address
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string StreetLine2 { get; set; } = default!;
+        public string StreetLine2 { get; set; }
 
         /// <summary>
         /// Address post code
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string PostCode { get; set; } = default!;
+        public string PostCode { get; set; }
     }
 }

@@ -13,19 +13,19 @@ namespace Telegram.Bot.Types.Payments
         /// Unique query identifier
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; } = default!;
+        public string Id { get; set; }
 
         /// <summary>
         /// User who sent the query
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public User From { get; set; } = default!;
+        public User From { get; set; }
 
         /// <summary>
         /// Three-letter ISO 4217 currency code
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Currency { get; set; } = default!;
+        public string Currency { get; set; }
 
         /// <summary>
         /// Total price in the smallest units of the currency.
@@ -37,18 +37,18 @@ namespace Telegram.Bot.Types.Payments
         /// Bot specified invoice payload
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string InvoicePayload { get; set; } = default!;
+        public string InvoicePayload { get; set; }
 
         /// <summary>
         /// Optional. Identifier of the shipping option chosen by the user
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? ShippingOptionId { get; set; }
+        public string ShippingOptionId { get; set; }
 
         /// <summary>
         /// Optional. Order info provided by the user
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public OrderInfo? OrderInfo { get; set; }
+        public OrderInfo OrderInfo { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -11,7 +10,7 @@ namespace Telegram.Bot.Requests
     /// Tell the user that something is happening on the bot's side
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SendChatActionRequest : RequestBase<bool>, IChatTargetable
+    public class SendChatActionRequest : RequestBase<bool>
     {
         /// <summary>
         /// Unique identifier for the target chat or username of the target channel
@@ -28,9 +27,7 @@ namespace Telegram.Bot.Requests
         /// <summary>
         /// Initializes a new request chatId and action
         /// </summary>
-        /// <param name="chatId">
-        /// Unique identifier for the target chat or username of the target channel
-        /// </param>
+        /// <param name="chatId">Unique identifier for the target chat or username of the target channel</param>
         /// <param name="action">Type of action to broadcast</param>
         public SendChatActionRequest(ChatId chatId, ChatAction action)
             : base("sendChatAction")

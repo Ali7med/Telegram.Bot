@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 
 // ReSharper disable once CheckNamespace
@@ -10,7 +9,7 @@ namespace Telegram.Bot.Requests
     /// Get a list of profile pictures for a user
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class GetUserProfilePhotosRequest : RequestBase<UserProfilePhotos>, IUserTargetable
+    public class GetUserProfilePhotosRequest : RequestBase<UserProfilePhotos>
     {
         /// <summary>
         /// Unique identifier of the target user
@@ -19,18 +18,16 @@ namespace Telegram.Bot.Requests
         public long UserId { get; }
 
         /// <summary>
-        /// Sequential number of the first photo to be returned. By default, all photos are
-        /// returned.
+        /// Sequential number of the first photo to be returned. By default, all photos are returned.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? Offset { get; set; }
+        public int Offset { get; set; }
 
         /// <summary>
-        /// Limits the number of photos to be retrieved. Values between 1—100 are accepted.
-        /// Defaults to 100.
+        /// Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int? Limit { get; set; }
+        public int Limit { get; set; }
 
         /// <summary>
         /// Initializes a new request with user id

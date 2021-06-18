@@ -13,25 +13,25 @@ namespace Telegram.Bot.Types
         /// Venue location
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public Location Location { get; set; } = default!;
+        public Location Location { get; set; }
 
         /// <summary>
         /// Title of the result
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Title { get; set; } = default!;
+        public string Title { get; set; }
 
         /// <summary>
         /// Address of the venue
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Address { get; set; } = default!;
+        public string Address { get; set; }
 
         /// <summary>
         /// Optional. Foursquare identifier of the venue
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareId { get; set; }
+        public string FoursquareId { get; set; }
 
         /// <summary>
         /// Google Places identifier of the venue
@@ -51,6 +51,6 @@ namespace Telegram.Bot.Types
         /// "arts_entertainment/aquarium" or "food/icecream".)
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? FoursquareType { get; set; }
+        public string FoursquareType { get; set; }
     }
 }

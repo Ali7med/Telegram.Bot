@@ -1,18 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 
 // ReSharper disable once CheckNamespace
 namespace Telegram.Bot.Requests
 {
     /// <summary>
-    /// Set the score of the specified user in a game. On success returns the edited
-    /// <see cref="Message"/>. Returns an error, if the new score is not greater than the user's
-    /// current score in the chat and force is False.
+    /// Set the score of the specified user in a game. On success returns the edited <see cref="Message"/>. Returns an error, if the new score is not greater than the user's current score in the chat and force is False.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class SetGameScoreRequest : RequestBase<Message>, IChatTargetable, IUserTargetable
+    public class SetGameScoreRequest : RequestBase<Message>
     {
         /// <summary>
         /// Unique identifier for the target chat
@@ -39,21 +36,16 @@ namespace Telegram.Bot.Requests
         public int Score { get; }
 
         /// <summary>
-        /// Pass <c>true</c>, if the high score is allowed to decrease. This can be useful when
-        /// fixing mistakes or banning cheaters.
+        /// Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? Force { get; set; }
+        public bool Force { get; set; }
 
         /// <summary>
-        /// Pass <c>true</c>, if the game message should not be automatically edited to include the
-        /// current scoreboard
+        /// Pass True, if the game message should not be automatically edited to include the current scoreboard
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? DisableEditMessage { get; set; }
-
-        [JsonIgnore]
-        ChatId IChatTargetable.ChatId => ChatId;
+        public bool DisableEditMessage { get; set; }
 
         /// <summary>
         /// Initializes a new request

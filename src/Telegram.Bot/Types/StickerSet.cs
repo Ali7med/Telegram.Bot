@@ -14,13 +14,13 @@ namespace Telegram.Bot.Types
         /// Sticker set name
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; }
 
         /// <summary>
         /// Sticker set title
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Title { get; set; } = default!;
+        public string Title { get; set; }
 
         /// <summary>
         /// True, if the sticker set contains animated stickers
@@ -38,12 +38,12 @@ namespace Telegram.Bot.Types
         /// List of all set stickers
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public Sticker[] Stickers { get; set; } = default!;
+        public Sticker[] Stickers { get; set; }
 
         /// <summary>
         /// Optional. Sticker set thumbnail in the .WEBP or .TGS format
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public PhotoSize? Thumb { get; set; }
+        public PhotoSize Thumb { get; set; }
     }
 }

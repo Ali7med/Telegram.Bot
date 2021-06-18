@@ -14,25 +14,25 @@ namespace Telegram.Bot.Types.Payments
         /// Product name
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Title { get; set; } = default!;
+        public string Title { get; set; }
 
         /// <summary>
         /// Product description
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Description { get; set; } = default!;
+        public string Description { get; set; }
 
         /// <summary>
         /// Unique bot deep-linking parameter that can be used to generate this invoice
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string StartParameter { get; set; } = default!;
+        public string StartParameter { get; set; }
 
         /// <summary>
         /// Three-letter ISO 4217 currency code
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Currency { get; set; } = default!;
+        public string Currency { get; set; }
 
         /// <summary>
         /// Total price in the smallest units of the currency.
